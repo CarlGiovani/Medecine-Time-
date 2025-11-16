@@ -1,0 +1,49 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base app theme -->
+    <style name="Base.Theme.MedsTime" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Core colors -->
+        <item name="colorPrimary">#1976D2</item>
+        <item name="colorPrimaryDark">#0D47A1</item>
+        <item name="colorAccent">#00BCD4</item>
+
+        <!-- Backgrounds -->
+        <item name="android:windowBackground">#E3F2FD</item>
+        <item name="android:colorBackground">#E3F2FD</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <item name="android:textColorSecondary">@android:color/black</item>
+
+        <!-- CardView and FAB defaults -->
+        <item name="cardViewStyle">@style/Widget.MedsTime.Card</item>
+        <item name="floatingActionButtonStyle">@style/Widget.MedsTime.FAB</item>
+
+        <!-- Toolbar colors -->
+        <item name="android:textColorPrimaryInverse">@android:color/white</item>
+        <item name="android:textColorSecondaryInverse">@android:color/white</item>
+    </style>
+
+    <!-- Actual theme -->
+    <style name="Theme.MedsTime" parent="Base.Theme.MedsTime" />
+
+    <!-- Card style -->
+    <style name="Widget.MedsTime.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">@android:color/white</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardUseCompatPadding">true</item>
+    </style>
+
+    <!-- FloatingActionButton style -->
+    <style name="Widget.MedsTime.FAB" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="backgroundTint">#1976D2</item>
+        <item name="tint">@android:color/white</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="strokeColor">#1976D2</item>
+        <item name="strokeWidth">3dp</item>
+    </style>
+
+
+</resources>

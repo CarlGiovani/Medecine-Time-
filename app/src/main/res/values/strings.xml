@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">MedsTime!</string>
+    <string name="create_reminder_title">Create Reminder</string>
+    <string name="modify_reminder_title">Modify Reminder</string>
+
+    <!-- Schedule types -->
+    <string name="schedule_once">Remind only once</string>
+    <string name="schedule_every_hours">Every X hours</string>
+    <string name="schedule_every_day">Every day</string>
+    <string name="schedule_specific_days">Specific days</string>
+
+    <!-- Medicines -->
+    <string name="medicine_aspirin">Aspirin</string>
+    <string name="medicine_ibuprofen">Ibuprofen</string>
+    <string name="medicine_paracetamol">Paracetamol</string>
+
+    <!-- Labels -->
+    <string name="select_medicines_label">Select Medicines:</string>
+    <string name="notes_hint">Notes (optional)</string>
+    <string name="save_reminder">Save Reminder</string>
+
+    <!-- Delete button -->
+    <string name="delete_reminder">Delete Reminder</string>
+    <string name="add_reminder">Add Reminder</string>
+    <string name="medstime">MedsTime!</string>
+    <string name="settings">Settings</string>
+
+</resources>
