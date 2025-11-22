@@ -31,6 +31,21 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="8dp"/>
 
+    <!-- Mark Button (Right Side) -->
+    <ImageButton
+        android:id="@+id/markButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Mark"
+        android:padding="8dp"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/select_mark"
+        app:tint="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/mainHeader"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Title -->
     <TextView
         android:id="@+id/medicineTitle"
@@ -41,8 +56,10 @@
         android:textStyle="bold"
         android:textColor="@android:color/black"
         android:gravity="center_vertical"
+        android:ellipsize="end"
+        android:singleLine="true"
         app:layout_constraintStart_toEndOf="@id/backButton"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/markButton"
         app:layout_constraintTop_toTopOf="@id/backButton"
         app:layout_constraintBottom_toBottomOf="@id/backButton"
         android:layout_marginStart="8dp"/>
@@ -53,12 +70,29 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
         app:layout_constraintTop_toBottomOf="@id/backButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/addMedicineFab"/>
 
-    <!-- FloatingActionButton to create medicine -->
+    <!-- Delete Selected FAB (Hidden Initially) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/deleteSelectedFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:visibility="gone"
+        android:contentDescription="Delete Selected"
+        app:backgroundTint="#D32F2F"
+        app:srcCompat="@android:drawable/ic_menu_delete"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Add Medicine FAB (Bottom Right) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addMedicineFab"
         android:layout_width="wrap_content"
@@ -69,6 +103,5 @@
         app:srcCompat="@android:drawable/ic_input_add"
         app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

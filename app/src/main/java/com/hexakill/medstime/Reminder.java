@@ -1,6 +1,8 @@
 package com.hexakill.medstime;
 
-public class Reminder {
+import java.io.Serializable;
+
+public class Reminder implements Serializable {
     private String name;
     private String type;
 

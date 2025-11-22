@@ -22,17 +22,17 @@ public class ModifyMedicineModal extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.modify_medicine);
+        setContentView(R.layout.activity_edit_medicine);
 
         // Initialize views
-        medicineSwitch = findViewById(R.id.medicineSwitch);
+     //   medicineSwitch = findViewById(R.id.medicineSwitch);
         dosageInput = findViewById(R.id.dosageInput);
-        dosageTypeSpinner = findViewById(R.id.dosageTypeSpinner);
-        reminderTypeSpinner = findViewById(R.id.reminderTypeSpinner);
-        everyXSpinner = findViewById(R.id.everyXSpinner);
+       // dosageTypeSpinner = findViewById(R.id.dosageTypeSpinner);
+       // reminderTypeSpinner = findViewById(R.id.reminderTypeSpinner);
+      //  everyXSpinner = findViewById(R.id.everyXSpinner);
         timePicker = findViewById(R.id.timePicker);
         saveMedicineFab = findViewById(R.id.saveMedicineFab);
-        deleteMedicineFab = findViewById(R.id.deleteMedicineFab);
+   //     deleteMedicineFab = findViewById(R.id.deleteMedicineFab);
 
         // Get medicine name from intent
         medicineName = getIntent().getStringExtra("medicine_name");

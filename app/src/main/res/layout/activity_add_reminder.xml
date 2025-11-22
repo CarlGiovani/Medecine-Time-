@@ -34,7 +34,7 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add Medicine"
+        android:text="Add Reminder"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
@@ -78,7 +78,6 @@
                     android:layout_marginEnd="12dp"
                     android:textColor="@android:color/black"
                     android:textSize="12sp" />
-
 
                 <EditText
                     android:id="@+id/medicineNameInput"
@@ -229,6 +228,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:timePickerMode="spinner"/>
+            </LinearLayout>
+
+            <!-- Note Label and Multiline EditText -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp">
+
+                <TextView
+                    android:id="@+id/noteLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Note"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"/>
+
+                <EditText
+                    android:id="@+id/noteInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Add your note here"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:gravity="top|start"
+                    android:backgroundTint="@android:color/black"
+                    android:textColor="@android:color/black"/>
             </LinearLayout>
 
         </LinearLayout>

@@ -34,7 +34,7 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add Medicine"
+        android:text="Edit Medicine"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"

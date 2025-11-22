@@ -48,7 +48,7 @@
         app:layout_constraintBottom_toBottomOf="@id/backButton"
         android:layout_marginStart="8dp"/>
 
-    <!-- Settings Buttons Column -->
+    <!-- Settings Container -->
     <LinearLayout
         android:id="@+id/settingsContainer"
         android:layout_width="0dp"
@@ -59,30 +59,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- 1st Button: Ringtone -->
+        <!-- Select Ringtone Button -->
         <Button
             android:id="@+id/btnRingtone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ringtone"
+            android:text="Select Ringtone"
             android:layout_marginBottom="12dp"/>
 
-        <!-- 2nd Button: Dropdown -->
-        <Spinner
-            android:id="@+id/spinnerAutoSilent"
+        <!-- Snooze Interval SeekBar Label -->
+        <TextView
+            android:id="@+id/snoozeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Snooze Interval: 1 min"
+            android:textSize="16sp"
+            android:layout_marginBottom="4dp"/>
+
+        <!-- Snooze Interval SeekBar -->
+        <SeekBar
+            android:id="@+id/seekBarSnooze"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"/>
 
-        <!-- 3rd Button: Snooze -->
-        <Button
-            android:id="@+id/btnSnooze"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Snooze"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- 4th: Toggle Notification Before Ringing -->
+        <!-- Notification Before Ringing -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -102,17 +103,18 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
-        <!-- 5th: Toggle Allow Permission -->
+        <!-- Permission Toggle -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Allow Permission"
+                android:text="Allow permission to show alarm on top"
                 android:textSize="16sp"/>
 
             <Switch
@@ -121,6 +123,12 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
+        <!-- Test Alarm Button -->
+        <Button
+            android:id="@+id/btnTestAlarm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Test Alarm"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

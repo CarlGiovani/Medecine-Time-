@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Adapter with click listener
         MedicineAdapter adapter = new MedicineAdapter(medicineList, medicine -> {
-            Intent intent = new Intent(MainActivity.this, ReminderListActivity.class);
+            Intent intent = new Intent(MainActivity.this, RemindersActivity.class);
             intent.putExtra("medicine_name", medicine.getName()); // pass name only
             startActivity(intent);
         });

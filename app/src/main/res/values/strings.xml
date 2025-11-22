@@ -25,4 +25,48 @@
     <string name="medstime">MedsTime!</string>
     <string name="settings">Settings</string>
 
+    <string name="about_title">About</string>
+
+    <string name="app_info">
+        MedsTime is an app designed to help you manage your medicine reminders efficiently and on time.
+    </string>
+
+    <string name="team_info">
+        Developed by the Hexakill team:\n
+\n
+        * Front-end Developers:\n
+            - Domenic Bas\n
+            - Rowell Joshua Endriga (Lead)\n
+\n
+        * Back-end Developer:\n
+            - Carl Patrick Lisbe (Lead)\n
+\n
+        * Quality Assurance Testers:\n
+            - Asrap Ambolodto\n
+            - Domenic Bas\n
+            - Rowell Joshua Endriga\n
+            - Lisbe Carl Patrick\n
+            - Angela Quisquino (Lead)\n
+            - Ainsley Salazar\n
+\n
+        * Researchers:\n
+            - Asrap Ambolodto\n
+            - Rowell Joshua Endriga\n
+            - Angela Quisquino (Lead)\n
+            - Ainsley Salazar\n
+\n
+        * Document Specialist:\n
+            - Angela Quisquino (Lead)\n
+\n
+        * User Interface Designers:\n
+            - Carl Patrick Lisbe\n
+            - Rowell Joshua Endriga (Lead)\n
+            - Angela Quisquino\n
+            - Ainsley Salazar\n
+\n
+        * Artist:\n
+            - Rowell Joshua Endriga (Lead)\n
+
+    </string>
+
 </resources>

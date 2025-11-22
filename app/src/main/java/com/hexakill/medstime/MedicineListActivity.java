@@ -29,7 +29,7 @@ public class MedicineListActivity extends AppCompatActivity {
 
         MedicineAdapter adapter = new MedicineAdapter(medicineList, medicine -> {
             // Open ReminderListActivity and pass medicine name
-            Intent intent = new Intent(MedicineListActivity.this, ReminderListActivity.class);
+            Intent intent = new Intent(MedicineListActivity.this, RemindersActivity.class);
             intent.putExtra("medicine_name", medicine.getName());
             startActivity(intent);
         });
@@ -42,7 +42,7 @@ public class MedicineListActivity extends AppCompatActivity {
         // FAB to create new reminder
         FloatingActionButton addFab = findViewById(R.id.addMedicineFab);
         addFab.setOnClickListener(v -> {
-            Intent intent = new Intent(MedicineListActivity.this, CreateMedicineActivity.class);
+            Intent intent = new Intent(MedicineListActivity.this, AddMedicineActivity.class);
             startActivity(intent);
         });
     }

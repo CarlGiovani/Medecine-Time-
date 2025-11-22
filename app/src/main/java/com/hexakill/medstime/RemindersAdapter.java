@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder> {
+public class RemindersAdapter extends RecyclerView.Adapter<RemindersAdapter.ReminderViewHolder> {
 
     public interface OnItemClickListener {
         void onItemClick(Reminder reminder);
@@ -22,7 +22,7 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
     private boolean selectionMode = false;
     private List<Reminder> selectedItems = new ArrayList<>();
 
-    public ReminderAdapter(List<Reminder> reminders, OnItemClickListener listener) {
+    public RemindersAdapter(List<Reminder> reminders, OnItemClickListener listener) {
         this.reminders = reminders;
         this.listener = listener;
     }

@@ -36,7 +36,7 @@
         android:id="@+id/aboutTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="About"
+        android:text="@string/about_title"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
@@ -78,15 +78,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:scaleType="centerInside"
-                    android:src="@android:drawable/ic_menu_info_details"
+                    android:src="@drawable/ic_launcher"
                     android:contentDescription="App Image"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="MedsTime is an app designed to help you manage your medicine reminders efficiently and on time."
+                    android:text="@string/app_info"
                     android:paddingTop="8dp"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp"
+                    android:textColor="@color/black"/>
             </LinearLayout>
 
             <!-- Section 2: Development Team -->
@@ -109,9 +110,10 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Developed by the MedsTime team: Alice, Bob, Carol, and Dave."
+                    android:text="@string/team_info"
                     android:paddingTop="8dp"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp"
+                    android:textColor="@color/black"/>
             </LinearLayout>
 
         </LinearLayout>

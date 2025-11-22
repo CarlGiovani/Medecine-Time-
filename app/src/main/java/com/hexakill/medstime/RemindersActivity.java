@@ -16,20 +16,19 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReminderListActivity extends AppCompatActivity {
+public class RemindersActivity extends AppCompatActivity {
 
     private List<Reminder> reminderList;
     private List<Reminder> selectedItems = new ArrayList<>();
-    private ReminderAdapter adapter;
+    private RemindersAdapter adapter;
 
     private boolean selectionMode = false;
-
     private FloatingActionButton deleteFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reminder_list);
+        setContentView(R.layout.activity_reminders);
 
         HeaderManager.setupHeader(this);
 
@@ -45,30 +44,38 @@ public class ReminderListActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.reminderRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new ReminderAdapter(reminderList, reminder -> {
+        // Adapter with click listener
+        adapter = new RemindersAdapter(reminderList, reminder -> {
             if (!selectionMode) {
-                Intent intent = new Intent(ReminderListActivity.this, ModifyReminderModal.class);
+                // Open EditReminderActivity
+                Intent intent = new Intent(RemindersActivity.this, EditReminderActivity.class);
                 intent.putExtra("medicine_name", medicineName);
+                intent.putExtra("reminder", reminder); // Reminder is Serializable
                 startActivity(intent);
             } else {
+                // Toggle selection if selectionMode is on
                 toggleSelection(reminder);
             }
         });
 
         recyclerView.setAdapter(adapter);
 
+        // Back button
         findViewById(R.id.backButton).setOnClickListener(v -> finish());
 
+        // FAB to add reminder
         FloatingActionButton addFab = findViewById(R.id.addReminderFab);
         addFab.setOnClickListener(v -> {
-            Intent intent = new Intent(ReminderListActivity.this, CreateReminderModal.class);
+            Intent intent = new Intent(RemindersActivity.this, AddReminderActivity.class);
             intent.putExtra("medicine_name", medicineName);
             startActivity(intent);
         });
 
+        // Mark button for selection mode
         ImageButton markButton = findViewById(R.id.markButton);
         markButton.setOnClickListener(v -> toggleSelectionMode());
 
+        // Delete selected reminders FAB
         deleteFab = findViewById(R.id.deleteSelectedFab);
         deleteFab.setVisibility(View.GONE);
         deleteFab.setOnClickListener(v -> showDeleteConfirmation());

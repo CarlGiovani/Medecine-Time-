@@ -1,64 +1,115 @@
 package com.hexakill.medstime;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
+import android.provider.Settings;
 import android.widget.Button;
-import android.widget.Spinner;
+import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private static final int REQUEST_CODE_RINGTONE = 1001;
+    private Uri selectedRingtoneUri;
+    private Button btnSelectRingtone, btnTestAlarm;
+    private SeekBar seekBarSnooze;
+    private TextView snoozeValueLabel;
+    private Switch switchNotification, switchPermission;
+
+    // Snooze interval options
+    private final int[] snoozeOptions = {1, 2, 3, 5, 10, 15, 30};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // Header setup
         HeaderManager.setupHeader(this);
 
-        // 1st Button: Ringtone
-        Button btnRingtone = findViewById(R.id.btnRingtone);
-        btnRingtone.setOnClickListener(v ->
-                Toast.makeText(this, "Ringtone", Toast.LENGTH_SHORT).show()
-        );
+        // Back button
+        findViewById(R.id.backButton).setOnClickListener(v -> finish());
 
-        // 2nd: Dropdown Auto Silent
-        Spinner spinnerAutoSilent = findViewById(R.id.spinnerAutoSilent);
-        String[] options = {"Off", "15 min", "30 min", "1 hour"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, options);
-        spinnerAutoSilent.setAdapter(adapter);
-        spinnerAutoSilent.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+        // Ringtone button
+        btnSelectRingtone = findViewById(R.id.btnRingtone);
+        btnSelectRingtone.setOnClickListener(v -> openRingtonePicker());
+
+        // Snooze seekbar and label
+        seekBarSnooze = findViewById(R.id.seekBarSnooze);
+        snoozeValueLabel = findViewById(R.id.snoozeLabel);
+
+        seekBarSnooze.setMax(snoozeOptions.length - 1);
+        seekBarSnooze.setProgress(0);
+        updateSnoozeLabel(0);
+
+        seekBarSnooze.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(SettingsActivity.this, "Auto Silent: " + options[position], Toast.LENGTH_SHORT).show();
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                updateSnoozeLabel(progress);
             }
-
-            @Override
-            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        // 3rd Button: Snooze
-        Button btnSnooze = findViewById(R.id.btnSnooze);
-        btnSnooze.setOnClickListener(v ->
-                Toast.makeText(this, "Snooze", Toast.LENGTH_SHORT).show()
-        );
+        // Notification before ringing
+        switchNotification = findViewById(R.id.switchNotification);
+        switchNotification.setChecked(true);
 
-        // 4th Switch: Notification before ringing
-        Switch switchNotification = findViewById(R.id.switchNotification);
-        switchNotification.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Toast.makeText(this, "Notification before ringing: " + (isChecked ? "ON" : "OFF"), Toast.LENGTH_SHORT).show()
-        );
+        // Permission toggle
+        switchPermission = findViewById(R.id.switchPermission);
+        switchPermission.setChecked(Settings.canDrawOverlays(this));
+        switchPermission.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && !Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                startActivity(intent);
+            }
+        });
 
-        // 5th Switch: Allow Permission
-        Switch switchPermission = findViewById(R.id.switchPermission);
-        switchPermission.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Toast.makeText(this, "Allow Permission: " + (isChecked ? "ON" : "OFF"), Toast.LENGTH_SHORT).show()
-        );
+        // Test alarm button
+        btnTestAlarm = findViewById(R.id.btnTestAlarm);
+        btnTestAlarm.setOnClickListener(v -> {
+            if (selectedRingtoneUri == null) {
+                Toast.makeText(this, "Please select a ringtone first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // Launch AlarmActivity for testing
+            Intent intent = new Intent(this, AlarmActivity.class);
+            intent.putExtra("ringtoneUri", selectedRingtoneUri.toString());
+            startActivity(intent);
+        });
+    }
 
-        // Back button functionality
-        findViewById(R.id.backButton).setOnClickListener(v -> finish());
+    private void updateSnoozeLabel(int index) {
+        int minutes = snoozeOptions[index];
+        snoozeValueLabel.setText("Snooze Interval: " + minutes + " min");
+    }
+
+    private void openRingtonePicker() {
+        Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Ringtone");
+        startActivityForResult(intent, REQUEST_CODE_RINGTONE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_RINGTONE && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                selectedRingtoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                if (selectedRingtoneUri != null) {
+                    btnSelectRingtone.setText("Ringtone Selected");
+                } else {
+                    btnSelectRingtone.setText("Select Ringtone");
+                }
+            }
+        }
     }
 }
