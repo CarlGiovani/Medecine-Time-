@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#E3F2FD">
+
+    <!-- Header -->
+    <include
+        android:id="@+id/mainHeader"
+        layout="@layout/header"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back"
+        app:srcCompat="@drawable/chevron_back"
+        app:layout_constraintTop_toBottomOf="@id/mainHeader"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Add Alarm"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:gravity="center_vertical|start"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/backButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/backButton"
+        app:layout_constraintBottom_toBottomOf="@id/backButton"/>
+
+    <ScrollView
+        android:id="@+id/scrollForm"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/backButton"
+        app:layout_constraintBottom_toTopOf="@+id/saveAlarmFab"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Medicine Name (read-only) -->
+            <TextView
+                android:id="@+id/tvMedicineName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Paracetamol"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"/>
+
+            <!-- Medicine Description (read-only) -->
+            <TextView
+                android:id="@+id/tvMedicineDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sample description of the medicine."
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:paddingTop="4dp"/>
+
+            <!-- Alarm Type -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="12dp">
+
+                <TextView
+                    android:id="@+id/alarmTypeLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Alarm Type"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/black"/>
+
+                <Button
+                    android:id="@+id/alarmTypeButton"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:text="Only Once"
+                    android:textColor="@android:color/black"
+                    android:backgroundTint="@android:color/white"/>
+            </LinearLayout>
+
+            <!-- Interval SeekBar -->
+            <LinearLayout
+                android:id="@+id/everyXSeekBarRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp">
+
+                <TextView
+                    android:id="@+id/everyXSeekBarLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Interval (hours): 1"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"/>
+
+                <SeekBar
+                    android:id="@+id/everyXSeekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="23"
+                    android:thumbTint="@android:color/black"
+                    android:progressTint="@android:color/black"/>
+            </LinearLayout>
+
+            <!-- Note -->
+            <EditText
+                android:id="@+id/noteInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Add note"
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:paddingTop="12dp"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Save FAB (bottom-right) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/saveAlarmFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:srcCompat="@android:drawable/ic_menu_save"
+        app:backgroundTint="#1976D2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

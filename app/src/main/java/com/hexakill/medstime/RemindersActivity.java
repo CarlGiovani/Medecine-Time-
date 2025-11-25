@@ -1,3 +1,4 @@
+/*
 package com.hexakill.medstime;
 
 import android.app.AlertDialog;
@@ -20,7 +21,7 @@ public class RemindersActivity extends AppCompatActivity {
 
     private List<Reminder> reminderList;
     private List<Reminder> selectedItems = new ArrayList<>();
-    private RemindersAdapter adapter;
+    private AlarmCardAdapter adapter;
 
     private boolean selectionMode = false;
     private FloatingActionButton deleteFab;
@@ -45,10 +46,10 @@ public class RemindersActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Adapter with click listener
-        adapter = new RemindersAdapter(reminderList, reminder -> {
+        adapter = new AlarmCardAdapter(reminderList, reminder -> {
             if (!selectionMode) {
                 // Open EditReminderActivity
-                Intent intent = new Intent(RemindersActivity.this, EditReminderActivity.class);
+                Intent intent = new Intent(RemindersActivity.this, AlarmEditActivity.class);
                 intent.putExtra("medicine_name", medicineName);
                 intent.putExtra("reminder", reminder); // Reminder is Serializable
                 startActivity(intent);
@@ -118,3 +119,4 @@ public class RemindersActivity extends AppCompatActivity {
                 .show();
     }
 }
+*/

@@ -2,24 +2,18 @@ package com.hexakill.medstime;
 
 public class Medicine {
     private String name;
-    private String dose;
-    private String instructions;
+    private String description; // optional if you want descriptions
 
-    public Medicine(String name, String dose, String instructions) {
+    public Medicine(String name, String description) {
         this.name = name;
-        this.dose = dose;
-        this.instructions = instructions;
+        this.description = description;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDose() {
-        return dose;
-    }
-
-    public String getInstructions() {
-        return instructions;
+    public String getDescription() {
+        return description;
     }
 }

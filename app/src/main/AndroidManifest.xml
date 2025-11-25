@@ -15,7 +15,7 @@
 
         <!-- Main launcher activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".HomepageActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,22 +44,27 @@
         <activity
             android:name=".AboutActivity"
             android:exported="false" />
-        <activity
+        <!--<activity
             android:name=".CreateMedicineActivity"
-            android:exported="false" />
+            android:exported="false" />-->
         <activity
             android:name=".ModifyMedicineModal"
             android:exported="false" />
-        <activity
+        <!--<activity
             android:name=".RemindersActivity"
-            android:exported="false" />
+            android:exported="false" />-->
         <activity
             android:name=".AddReminderActivity"
             android:exported="false" />
         <activity
-            android:name=".EditReminderActivity"
+            android:name=".AlarmEditActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".AlarmAddUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AlarmAddPresetActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

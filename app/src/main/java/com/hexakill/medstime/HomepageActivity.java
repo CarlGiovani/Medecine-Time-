@@ -5,31 +5,38 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class HomepageActivity extends AppCompatActivity {
 
-    private List<Medicine> medicineList;
+    private List<AlarmSet> alarmList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_homepage);
 
         // Header setup
         HeaderManager.setupHeader(this);
 
-        // Load sample medicines (only names are needed)
-        medicineList = SampleData.getSampleMedicines();
+        // Load sample alarms
+        alarmList = SampleAlarms.getSampleAlarms();
 
         RecyclerView recyclerView = findViewById(R.id.remindersRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Adapter with click listener
-        MedicineAdapter adapter = new MedicineAdapter(medicineList, medicine -> {
-            Intent intent = new Intent(MainActivity.this, RemindersActivity.class);
-            intent.putExtra("medicine_name", medicine.getName()); // pass name only
+        // Adapter using item_alarm.xml
+        AlarmCardAdapter adapter = new AlarmCardAdapter(alarmList, alarmSet -> {
+            // Open AlarmEditActivity on click
+            Intent intent = new Intent(HomepageActivity.this, AlarmEditActivity.class);
+            intent.putExtra("medicine_name", alarmSet.getMedicineName());
+            intent.putExtra("medicine_description", alarmSet.getMedicineDescription());
+            intent.putExtra("alarm_type", alarmSet.getAlarmType());
+            intent.putExtra("alarm_interval", alarmSet.getAlarmInterval());
+            intent.putExtra("alarm_note", alarmSet.getAlarmNote());
             startActivity(intent);
         });
 
@@ -38,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         // FAB to open MedicineListActivity
         FloatingActionButton addFab = findViewById(R.id.addReminderFab);
         addFab.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MedicineListActivity.class);
+            Intent intent = new Intent(HomepageActivity.this, MedicineListActivity.class);
             startActivity(intent);
         });
     }

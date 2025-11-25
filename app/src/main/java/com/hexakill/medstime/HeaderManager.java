@@ -27,9 +27,9 @@ public class HeaderManager {
         inflater.inflate(R.menu.main_menu, popupMenu.getMenu());
 
         Class<?> current = activity.getClass();
-        if (current == MedicineMenuActivity.class) {
-            popupMenu.getMenu().findItem(R.id.menu_medicines).setEnabled(false);
-        } else if (current == SettingsActivity.class) {
+
+        // Removed menu_medicines check
+        if (current == SettingsActivity.class) {
             popupMenu.getMenu().findItem(R.id.menu_settings).setEnabled(false);
         } else if (current == HelpActivity.class) {
             popupMenu.getMenu().findItem(R.id.menu_help).setEnabled(false);
@@ -44,11 +44,9 @@ public class HeaderManager {
     private static boolean handleMenuClick(Activity activity, MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.menu_medicines) {
-            activity.startActivity(new Intent(activity, MedicineMenuActivity.class));
-            return true;
+        // Completely removed the menu_medicines navigation block
 
-        } else if (id == R.id.menu_settings) {
+        if (id == R.id.menu_settings) {
             activity.startActivity(new Intent(activity, SettingsActivity.class));
             return true;
 

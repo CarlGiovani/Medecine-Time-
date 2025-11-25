@@ -1,3 +1,4 @@
+/*
 package com.hexakill.medstime;
 
 import android.app.AlertDialog;
@@ -108,3 +109,4 @@ public class MedicineMenuActivity extends AppCompatActivity {
                 .show();
     }
 }
+*/

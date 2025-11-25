@@ -43,7 +43,7 @@ public class AddMedicineActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_medicine);
+        setContentView(R.layout.activity_alarm_add_preset);
 
         HeaderManager.setupHeader(this);
         medicineNameInput = findViewById(R.id.medicineNameInput);
