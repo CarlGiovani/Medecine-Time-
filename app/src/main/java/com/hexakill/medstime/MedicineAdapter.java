@@ -27,6 +27,13 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         this.listener = listener;
     }
 
+    // Update list dynamically
+    public void updateData(List<Medicine> newList) {
+        this.medicineList.clear();
+        this.medicineList.addAll(newList);
+        notifyDataSetChanged();
+    }
+
     public void setSelectionMode(boolean selectionMode) {
         this.selectionMode = selectionMode;
         if (!selectionMode) selectedItems.clear();
@@ -50,6 +57,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
     public void onBindViewHolder(@NonNull MedicineViewHolder holder, int position) {
         Medicine medicine = medicineList.get(position);
         holder.nameText.setText(medicine.getName());
+        holder.descriptionText.setText(medicine.getDescription()); // display description
 
         // Highlight selected items only in selection mode
         if (selectionMode && selectedItems.contains(medicine)) {
@@ -68,11 +76,13 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
 
     static class MedicineViewHolder extends RecyclerView.ViewHolder {
         TextView nameText;
+        TextView descriptionText; // added for description
         Drawable originalBackground;
 
         public MedicineViewHolder(@NonNull View itemView) {
             super(itemView);
             nameText = itemView.findViewById(R.id.tvMedicineName);
+            descriptionText = itemView.findViewById(R.id.tvMedicineDescription); // make sure exists in XML
             originalBackground = itemView.getBackground();
         }
     }

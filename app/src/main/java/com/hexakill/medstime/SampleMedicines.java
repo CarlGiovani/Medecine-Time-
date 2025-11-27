@@ -1,3 +1,4 @@
+/*
 package com.hexakill.medstime;
 
 import java.util.ArrayList;
@@ -24,3 +25,4 @@ public class SampleMedicines {
         return list;
     }
 }
+*/

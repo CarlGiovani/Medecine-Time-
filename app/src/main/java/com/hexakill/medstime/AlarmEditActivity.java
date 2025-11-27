@@ -1,82 +1,96 @@
 package com.hexakill.medstime;
 
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.ImageButton;
+import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.hexakill.medstime.database.MyDbHelper;
 
 public class AlarmEditActivity extends AppCompatActivity {
 
     private ImageButton backButton;
-    private TextView tvMedicineName, tvMedicineDescription;
-    private Button alarmTypeButton;
+    private TextView tvMedicineName, tvIntervalLabel;
     private SeekBar everyXSeekBar;
     private EditText noteInput;
     private FloatingActionButton saveAlarmFab, deleteAlarmFab;
+
+    private MyDbHelper dbHelper;
+    private int alarmId; // Store the ID of the current alarm
+    private static final int MIN_INTERVAL = 1; // minimum 1 hour
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_edit);
 
-        // Setup header (if you have a HeaderManager helper)
         HeaderManager.setupHeader(this);
 
-        // Back button
+        // Bind views
         backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(v -> finish());
-
-        // Read-only medicine info
         tvMedicineName = findViewById(R.id.tvMedicineName);
-        tvMedicineDescription = findViewById(R.id.tvMedicineDescription);
-
-        // Alarm settings
-        alarmTypeButton = findViewById(R.id.alarmTypeButton);
+        tvIntervalLabel = findViewById(R.id.everyXSeekBarLabel);
         everyXSeekBar = findViewById(R.id.everyXSeekBar);
         noteInput = findViewById(R.id.noteInput);
-
-        // FABs
         saveAlarmFab = findViewById(R.id.saveAlarmFab);
         deleteAlarmFab = findViewById(R.id.deleteAlarmFab);
 
+        dbHelper = new MyDbHelper(this);
+
+        // Back button
+        backButton.setOnClickListener(v -> finish());
+
         // Receive AlarmSet data from intent
+        alarmId = getIntent().getIntExtra("alarm_id", -1);
         String medicineName = getIntent().getStringExtra("medicine_name");
-        String medicineDescription = getIntent().getStringExtra("medicine_description");
-        String alarmType = getIntent().getStringExtra("alarm_type");
-        int alarmInterval = getIntent().getIntExtra("alarm_interval", 0);
+        int alarmInterval = getIntent().getIntExtra("alarm_interval", MIN_INTERVAL);
         String alarmNote = getIntent().getStringExtra("alarm_note");
 
         // Populate fields
         tvMedicineName.setText(medicineName != null ? medicineName : "");
-        tvMedicineDescription.setText(medicineDescription != null ? medicineDescription : "");
-        alarmTypeButton.setText(alarmType != null ? alarmType : "- Select -");
-        everyXSeekBar.setProgress(alarmInterval);
+        everyXSeekBar.setMax(24); // optional max interval
+        everyXSeekBar.setProgress(Math.max(alarmInterval, MIN_INTERVAL));
+        tvIntervalLabel.setText("Interval (hours): " + everyXSeekBar.getProgress());
         noteInput.setText(alarmNote != null ? alarmNote : "");
 
-        // Alarm type button click
-        alarmTypeButton.setOnClickListener(v -> {
-            // Show dialog or dropdown to select alarm type
+        // SeekBar listener to update label
+        everyXSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int interval = Math.max(progress, MIN_INTERVAL);
+                tvIntervalLabel.setText("Interval (hours): " + interval);
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
         });
 
         // Save alarm
         saveAlarmFab.setOnClickListener(v -> {
-            String updatedType = alarmTypeButton.getText().toString();
-            int updatedInterval = everyXSeekBar.getProgress();
+            int updatedInterval = Math.max(everyXSeekBar.getProgress(), MIN_INTERVAL);
             String updatedNote = noteInput.getText().toString();
 
-            // TODO: save or update AlarmSet in backend / database
+            if (alarmId != -1) {
+                // Update existing alarm
+                dbHelper.updateUserReminder(alarmId, medicineName, "",
+                        String.valueOf(updatedInterval), updatedNote);
+            } else {
+                // Insert new alarm
+                dbHelper.addUserReminder(medicineName, "",
+                        String.valueOf(updatedInterval), updatedNote);
+            }
 
+            setResult(RESULT_OK); // notify HomepageActivity to refresh
             finish();
         });
 
         // Delete alarm
         deleteAlarmFab.setOnClickListener(v -> {
-            // TODO: delete alarm from backend / database
-
+            if (alarmId != -1) {
+                dbHelper.deleteUserReminder(alarmId);
+                setResult(RESULT_OK); // notify HomepageActivity to refresh
+            }
             finish();
         });
     }

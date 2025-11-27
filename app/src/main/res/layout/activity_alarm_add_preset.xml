@@ -79,31 +79,6 @@
                 android:textColor="@android:color/black"
                 android:paddingTop="4dp"/>
 
-            <!-- Alarm Type -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingTop="12dp">
-
-                <TextView
-                    android:id="@+id/alarmTypeLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Alarm Type"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/black"/>
-
-                <Button
-                    android:id="@+id/alarmTypeButton"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:text="Only Once"
-                    android:textColor="@android:color/black"
-                    android:backgroundTint="@android:color/white"/>
-            </LinearLayout>
 
             <!-- Interval SeekBar -->
             <LinearLayout

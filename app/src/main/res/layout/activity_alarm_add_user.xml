@@ -70,42 +70,6 @@
                 android:textSize="18sp"
                 android:paddingBottom="4dp"/>
 
-            <!-- Medicine Description (editable) -->
-            <EditText
-                android:id="@+id/medicineDescriptionInput"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Medicine Description"
-                android:textColor="@android:color/black"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:paddingBottom="8dp"/>
-
-            <!-- Alarm Type -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingTop="12dp">
-
-                <TextView
-                    android:id="@+id/alarmTypeLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Alarm Type"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/black"/>
-
-                <Button
-                    android:id="@+id/alarmTypeButton"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:text="Only Once"
-                    android:textColor="@android:color/black"
-                    android:backgroundTint="@android:color/white"/>
-            </LinearLayout>
 
             <!-- Interval SeekBar -->
             <LinearLayout

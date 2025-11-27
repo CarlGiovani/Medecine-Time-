@@ -53,9 +53,11 @@ public class AlarmCardAdapter extends RecyclerView.Adapter<AlarmCardAdapter.Alar
     public void onBindViewHolder(@NonNull AlarmViewHolder holder, int position) {
         AlarmSet alarm = alarmList.get(position);
 
+        // Display medicine name
         holder.tvMedicineName.setText(alarm.getMedicineName());
-        holder.tvNextAlarm.setText(alarm.getAlarmInterval());
-        holder.tvAlarmType.setText(alarm.getAlarmType());
+        // Display next alarm time calculated from interval
+        holder.tvNextAlarm.setText(alarm.getNextAlarmTime());
+        // Display note
         holder.tvAlarmNote.setText(alarm.getAlarmNote());
 
         if (selectionMode && selectedItems.contains(alarm)) {
@@ -68,7 +70,7 @@ public class AlarmCardAdapter extends RecyclerView.Adapter<AlarmCardAdapter.Alar
             if (listener != null) listener.onItemClick(alarm);
         });
 
-        // The Switch is still displayed but not editable in the card
+        // Switch remains displayed but disabled
         holder.reminderSwitch.setChecked(true);
         holder.reminderSwitch.setEnabled(false);
     }
@@ -79,7 +81,7 @@ public class AlarmCardAdapter extends RecyclerView.Adapter<AlarmCardAdapter.Alar
     }
 
     static class AlarmViewHolder extends RecyclerView.ViewHolder {
-        TextView tvMedicineName, tvNextAlarm, tvAlarmType, tvAlarmNote;
+        TextView tvMedicineName, tvNextAlarm, tvAlarmNote;
         Switch reminderSwitch;
         Drawable originalBackground;
 
@@ -87,10 +89,17 @@ public class AlarmCardAdapter extends RecyclerView.Adapter<AlarmCardAdapter.Alar
             super(itemView);
             tvMedicineName = itemView.findViewById(R.id.tvMedicineName);
             tvNextAlarm = itemView.findViewById(R.id.tvNextAlarm);
-            tvAlarmType = itemView.findViewById(R.id.tvAlarmType);
-            tvAlarmNote = itemView.findViewById(R.id.tvalarmNote); // match XML ID
+            tvAlarmNote = itemView.findViewById(R.id.tvalarmNote);
             reminderSwitch = itemView.findViewById(R.id.reminderSwitch);
             originalBackground = itemView.getBackground();
         }
     }
+
+    public void updateData(List<AlarmSet> newList) {
+        this.alarmList.clear();
+        this.alarmList.addAll(newList);
+        notifyDataSetChanged(); // redraw RecyclerView
+    }
+
+
 }

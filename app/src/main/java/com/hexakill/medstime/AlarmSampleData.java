@@ -1,3 +1,4 @@
+/*
 package com.hexakill.medstime;
 
 import java.util.ArrayList;
@@ -35,3 +36,4 @@ public class AlarmSampleData {
         return list;
     }
 }
+*/
