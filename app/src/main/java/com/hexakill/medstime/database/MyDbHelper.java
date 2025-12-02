@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.Toast;
 
 import com.hexakill.medstime.AlarmSet;
 import com.hexakill.medstime.Medicine;
@@ -13,105 +12,247 @@ import com.hexakill.medstime.Medicine;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.Nullable;
-
 public class MyDbHelper extends SQLiteOpenHelper {
 
-    private static final String DB_NAME = "UserReminder.db";
-    private static final int DB_VERSION = 1;
-    private final Context context;
+    private static final String DATABASE_NAME = "medstime.db";
+    private static final int DATABASE_VERSION = 5;
 
-    // User table
-    private static final String TABLE_USER = "Table_User";
-    private static final String COL_USER_ID = "ID";
-    private static final String COL_USER_NAME = "Medicine_Name";
-    private static final String COL_USER_DESCRIPTION = "Medicine_Description";
-    private static final String COL_USER_INTERVAL = "Interval";
-    private static final String COL_USER_NOTE = "Note";
+    // ===========================
+    // USER REMINDERS TABLE
+    // ===========================
+    private static final String TABLE_USER = "reminders_user";
 
-    public MyDbHelper(@Nullable Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
-        this.context = context;
+    private static final String COL_ID = "id";
+    private static final String COL_NAME = "medicine_name";
+    private static final String COL_DESC = "medicine_description";
+    private static final String COL_INTERVAL = "interval_hours"; // stored as STRING
+    private static final String COL_NOTE = "note";
+    private static final String COL_START = "start_time";
+    private static final String COL_ACTIVE = "active";
+
+    // ===========================
+    // PREBUILT REMINDERS TABLE
+    // ===========================
+    private static final String TABLE_PREBUILT = "reminders_prebuilt";
+
+    // ===========================
+    // PREBUILT MEDICINE TABLE
+    // ===========================
+    private static final String TABLE_PREBUILT_MED = "prebuilt_medicines";
+    private static final String COL_MED_NAME = "name";
+    private static final String COL_MED_DESC = "description";
+
+    public MyDbHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query = "CREATE TABLE IF NOT EXISTS " + TABLE_USER + " (" +
-                COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COL_USER_NAME + " TEXT, " +
-                COL_USER_DESCRIPTION + " TEXT, " +
-                COL_USER_INTERVAL + " TEXT, " +
-                COL_USER_NOTE + " TEXT);";
-        db.execSQL(query);
+
+        // USER REMINDERS
+        db.execSQL("CREATE TABLE " + TABLE_USER + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT, "
+                + COL_DESC + " TEXT, "
+                + COL_INTERVAL + " TEXT, "
+                + COL_NOTE + " TEXT, "
+                + COL_START + " LONG, "
+                + COL_ACTIVE + " INTEGER DEFAULT 1)");
+
+        // PREBUILT REMINDERS
+        db.execSQL("CREATE TABLE " + TABLE_PREBUILT + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_NAME + " TEXT, "
+                + COL_DESC + " TEXT, "
+                + COL_INTERVAL + " TEXT, "
+                + COL_NOTE + " TEXT, "
+                + COL_START + " LONG, "
+                + COL_ACTIVE + " INTEGER DEFAULT 1)");
+
+        // PREBUILT MEDICINE LIST
+        db.execSQL("CREATE TABLE " + TABLE_PREBUILT_MED + " ("
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COL_MED_NAME + " TEXT, "
+                + COL_MED_DESC + " TEXT)");
+
+        // Insert default prebuilt medicines
+        insertDefaultPrebuiltMedicines(db);
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { }
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREBUILT);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREBUILT_MED);
+        onCreate(db);
+    }
 
-    // -------------------- User table methods --------------------
-    public void addUserReminder(String name, String description, String interval, String note) {
-        SQLiteDatabase db = this.getWritableDatabase();
+    // ============================================================
+    // DEFAULT PREBUILT MEDICINE LIST
+    // ============================================================
+    private void insertDefaultPrebuiltMedicines(SQLiteDatabase db) {
+        insertMedicine(db, "Paracetamol", "Painkiller & fever reducer");
+        insertMedicine(db, "Amoxicillin", "Antibiotic");
+        insertMedicine(db, "Ibuprofen", "Anti-inflammatory");
+        insertMedicine(db, "Cetirizine", "Anti-allergy");
+        insertMedicine(db, "Aspirin", "Painkiller / blood thinner");
+    }
+
+    private void insertMedicine(SQLiteDatabase db, String name, String desc) {
         ContentValues cv = new ContentValues();
-        cv.put(COL_USER_NAME, name);
-        cv.put(COL_USER_DESCRIPTION, description);
-        cv.put(COL_USER_INTERVAL, interval);
-        cv.put(COL_USER_NOTE, note);
-
-        long result = db.insert(TABLE_USER, null, cv);
-        Toast.makeText(context, result == -1 ? "Failed" : "Added Successfully!", Toast.LENGTH_SHORT).show();
+        cv.put(COL_MED_NAME, name);
+        cv.put(COL_MED_DESC, desc);
+        db.insert(TABLE_PREBUILT_MED, null, cv);
     }
 
-    // Add prebuilt medicine to user table
-    public void addPrebuiltReminder(String name, String description, int interval, String note) {
-        addUserReminder(name, description, String.valueOf(interval), note);
-    }
-
-    public void updateUserReminder(int id, String name, String description, String interval, String note) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(COL_USER_NAME, name);
-        cv.put(COL_USER_DESCRIPTION, description);
-        cv.put(COL_USER_INTERVAL, interval);
-        cv.put(COL_USER_NOTE, note);
-
-        int result = db.update(TABLE_USER, cv, COL_USER_ID + "=?", new String[]{String.valueOf(id)});
-        Toast.makeText(context, result > 0 ? "Updated Successfully!" : "Update Failed", Toast.LENGTH_SHORT).show();
-    }
-
-    public void deleteUserReminder(int id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        int result = db.delete(TABLE_USER, COL_USER_ID + "=?", new String[]{String.valueOf(id)});
-        Toast.makeText(context, result > 0 ? "Deleted Successfully!" : "Delete Failed", Toast.LENGTH_SHORT).show();
-    }
-
-    public List<AlarmSet> getAllUserReminders() {
-        List<AlarmSet> list = new ArrayList<>();
+    // ============================================================
+    // GET ALL PREBUILT MEDICINES
+    // ============================================================
+    public List<Medicine> getAllPrebuiltMedicines() {
+        List<Medicine> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_USER, null);
 
-        if (cursor.moveToFirst()) {
-            int nameIdx = cursor.getColumnIndex(COL_USER_NAME);
-            int intervalIdx = cursor.getColumnIndex(COL_USER_INTERVAL);
-            int noteIdx = cursor.getColumnIndex(COL_USER_NOTE);
+        Cursor c = db.rawQuery("SELECT * FROM " + TABLE_PREBUILT_MED, null);
 
-            do {
-                String name = nameIdx != -1 ? cursor.getString(nameIdx) : "";
-                String interval = intervalIdx != -1 ? cursor.getString(intervalIdx) : "";
-                String note = noteIdx != -1 ? cursor.getString(noteIdx) : "";
-                list.add(new AlarmSet(name, interval, note)); // matches AlarmSet(String, String, String)
-            } while (cursor.moveToNext());
+        while (c.moveToNext()) {
+            list.add(new Medicine(
+                    c.getInt(c.getColumnIndexOrThrow(COL_ID)),
+                    c.getString(c.getColumnIndexOrThrow(COL_MED_NAME)),
+                    c.getString(c.getColumnIndexOrThrow(COL_MED_DESC))
+            ));
         }
-        cursor.close();
+        c.close();
         return list;
     }
 
-    // -------------------- Prebuilt medicines (hard-coded) --------------------
-    public List<Medicine> getAllPrebuiltMedicines() {
-        List<Medicine> prebuilt = new ArrayList<>();
-        prebuilt.add(new Medicine("Paracetamol", "Pain reliever and fever reducer"));
-        prebuilt.add(new Medicine("Ibuprofen", "Reduces inflammation and pain"));
-        prebuilt.add(new Medicine("Vitamin C", "Boosts immune system"));
-        prebuilt.add(new Medicine("Amoxicillin", "Antibiotic for bacterial infections"));
-        return prebuilt;
+    // ============================================================
+    // ADD PREBUILT REMINDER
+    // ============================================================
+    public void addPrebuiltReminder(String name, String desc, int intervalHours, String note, long startTime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COL_NAME, name);
+        cv.put(COL_DESC, desc);
+        cv.put(COL_INTERVAL, String.valueOf(intervalHours));
+        cv.put(COL_NOTE, note);
+        cv.put(COL_START, startTime);
+        cv.put(COL_ACTIVE, 1);
+
+        db.insert(TABLE_PREBUILT, null, cv);
+    }
+
+    // ============================================================
+    // ADD USER REMINDER
+    // ============================================================
+    public void addUserReminder(String name, String desc, String interval, String note, long startTime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COL_NAME, name);
+        cv.put(COL_DESC, desc);
+        cv.put(COL_INTERVAL, interval);
+        cv.put(COL_NOTE, note);
+        cv.put(COL_START, startTime);
+        cv.put(COL_ACTIVE, 1);
+
+        db.insert(TABLE_USER, null, cv);
+    }
+
+    // ============================================================
+    // UPDATE USER REMINDER
+    // ============================================================
+    public void updateUserReminder(int id, String name, String desc, String interval, String note, long startTime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COL_NAME, name);
+        cv.put(COL_DESC, desc);
+        cv.put(COL_INTERVAL, interval);
+        cv.put(COL_NOTE, note);
+        cv.put(COL_START, startTime);
+
+        db.update(TABLE_USER, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
+    }
+
+    // ============================================================
+    // UPDATE PREBUILT REMINDER
+    // ============================================================
+    public void updatePrebuiltReminder(int id, String name, String desc, String interval, String note, long startTime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COL_NAME, name);
+        cv.put(COL_DESC, desc);
+        cv.put(COL_INTERVAL, interval);
+        cv.put(COL_NOTE, note);
+        cv.put(COL_START, startTime);
+
+        db.update(TABLE_PREBUILT, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
+    }
+
+    // ============================================================
+    // DELETE USER
+    // ============================================================
+    public void deleteUserReminder(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_USER, COL_ID + "=?", new String[]{String.valueOf(id)});
+    }
+
+    // ============================================================
+    // DELETE PREBUILT
+    // ============================================================
+    public void deletePrebuiltReminder(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_PREBUILT, COL_ID + "=?", new String[]{String.valueOf(id)});
+    }
+
+    // ============================================================
+    // UPDATE ALARM STATUS (Switch toggle)
+    // ============================================================
+    public void updateAlarmStatus(int id, boolean active) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COL_ACTIVE, active ? 1 : 0);
+
+        db.update(TABLE_USER, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
+        db.update(TABLE_PREBUILT, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
+    }
+
+    // ============================================================
+    // GET REMINDERS
+    // ============================================================
+    public List<AlarmSet> getAllUserReminders() {
+        return fetchAlarms(TABLE_USER, true);
+    }
+
+    public List<AlarmSet> getAllPremadeReminders() {
+        return fetchAlarms(TABLE_PREBUILT, false);
+    }
+
+    // ============================================================
+    // FETCH ALARMS FROM TABLE
+    // ============================================================
+    private List<AlarmSet> fetchAlarms(String tableName, boolean isUser) {
+        List<AlarmSet> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor c = db.rawQuery("SELECT * FROM " + tableName, null);
+
+        while (c.moveToNext()) {
+            AlarmSet alarm = new AlarmSet(
+                    c.getInt(c.getColumnIndexOrThrow(COL_ID)),
+                    c.getString(c.getColumnIndexOrThrow(COL_NAME)),
+                    c.getString(c.getColumnIndexOrThrow(COL_INTERVAL)),
+                    c.getString(c.getColumnIndexOrThrow(COL_NOTE)),
+                    c.getLong(c.getColumnIndexOrThrow(COL_START))
+            );
+            alarm.setUserCreated(isUser);
+            alarm.setActive(c.getInt(c.getColumnIndexOrThrow(COL_ACTIVE)) == 1);
+
+            list.add(alarm);
+        }
+        c.close();
+        return list;
     }
 }

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/alarm_popup_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cyan"
+    android:gravity="center">
+
+    <!-- Alarm title -->
+    <TextView
+        android:id="@+id/alarm_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:text="MedsTime!"
+        android:textColor="#FFFFFF"
+        android:textSize="36sp"
+        android:textStyle="bold" />
+
+    <!-- Alarm time -->
+    <TextView
+        android:id="@+id/alarm_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="07:00 AM"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:layout_below="@id/alarm_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Scrollable list of medicines -->
+    <ScrollView
+        android:id="@+id/alarm_medicine_list_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/alarm_time"
+        android:layout_above="@id/alarm_dismiss_button"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:textColor="#FFFFFF">
+
+
+        <LinearLayout
+            android:id="@+id/alarm_medicine_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <!-- Each medicine + note item will be added dynamically here -->
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Dismiss / Snooze button -->
+    <Button
+        android:id="@+id/alarm_dismiss_button"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:text="Snooze"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:backgroundTint="#FF0000"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"/>
+</RelativeLayout>

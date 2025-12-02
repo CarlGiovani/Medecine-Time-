@@ -1,59 +1,105 @@
 package com.hexakill.medstime;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
+import java.util.Objects;
 
 public class AlarmSet {
+
     private int id;
     private String medicineName;
-    private String alarmInterval; // interval in minutes
+    private String medicineDescription = "";
+    private String alarmInterval;        // ALWAYS stored as STRING
     private String alarmNote;
-    private long startTimeMillis; // timestamp of when alarm was first set or last triggered
+    private long startTime;
+    private long nextAlarmTime;
+    private boolean active = true;
+    private boolean userCreated = false;
 
-    // Constructor including ID
-    public AlarmSet(int id, String medicineName, String alarmInterval, String alarmNote, long startTimeMillis) {
+    // ==========================
+    // Constructors
+    // ==========================
+    public AlarmSet(int id, String medicineName, String interval, String note, long startTime) {
         this.id = id;
         this.medicineName = medicineName;
-        this.alarmInterval = alarmInterval;
-        this.alarmNote = alarmNote;
-        this.startTimeMillis = startTimeMillis;
+        this.alarmInterval = interval;
+        this.alarmNote = note;
+        this.startTime = startTime;
     }
 
-    // Constructor without ID (new alarm)
-    public AlarmSet(String medicineName, String alarmInterval, String alarmNote) {
-        this(-1, medicineName, alarmInterval, alarmNote, System.currentTimeMillis());
+    public AlarmSet(int id, String medicineName, String description, String interval,
+                    String note, long startTime) {
+        this.id = id;
+        this.medicineName = medicineName;
+        this.medicineDescription = description;
+        this.alarmInterval = interval;
+        this.alarmNote = note;
+        this.startTime = startTime;
     }
 
+    // ==========================
+    // Getters & Setters
+    // ==========================
     public int getId() { return id; }
     public String getMedicineName() { return medicineName; }
+    public String getMedicineDescription() { return medicineDescription; }
     public String getAlarmInterval() { return alarmInterval; }
     public String getAlarmNote() { return alarmNote; }
-    public long getStartTimeMillis() { return startTimeMillis; }
-    public void setStartTimeMillis(long millis) { this.startTimeMillis = millis; }
+    public long getStartTime() { return startTime; }
+    public long getNextAlarmTime() { return nextAlarmTime; }
 
-    /**
-     * Calculates the next alarm time based on startTimeMillis and interval.
-     * Loops forward until the time is in the future.
-     */
-    public String getNextAlarmTime() {
+    public boolean isActive() { return active; }
+    public boolean isUserCreated() { return userCreated; }
+
+    public void setActive(boolean active) { this.active = active; }
+    public void setUserCreated(boolean userCreated) { this.userCreated = userCreated; }
+    public void setMedicineDescription(String description) { this.medicineDescription = description; }
+
+    // ==========================
+    // COMPUTE NEXT ALARM TIME
+    // ==========================
+    public void computeNextAlarmTime() {
+        long now = System.currentTimeMillis();
+
         try {
-            int intervalMinutes = Integer.parseInt(alarmInterval);
-            if (intervalMinutes <= 0) return "Invalid interval";
+            int intervalHours = Integer.parseInt(alarmInterval);
+            long intervalMillis = intervalHours * 60L * 60L * 1000L;
 
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(startTimeMillis);
+            long next = startTime;
 
-            // Loop forward until we get a future time
-            Calendar now = Calendar.getInstance();
-            while (!cal.after(now)) {
-                cal.add(Calendar.MINUTE, intervalMinutes);
+            // If the start time is in the past, advance until ahead of now
+            while (next < now) {
+                next += intervalMillis;
             }
 
-            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-            return sdf.format(cal.getTime());
-        } catch (NumberFormatException e) {
-            return "Invalid interval";
+            nextAlarmTime = next;
+
+        } catch (Exception e) {
+            // Fallback to "now + 1 hour"
+            nextAlarmTime = now + (60L * 60L * 1000L);
         }
+    }
+
+    // ==========================
+    // DiffUtil Support
+    // ==========================
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AlarmSet)) return false;
+        AlarmSet alarm = (AlarmSet) o;
+        return id == alarm.id &&
+                startTime == alarm.startTime &&
+                nextAlarmTime == alarm.nextAlarmTime &&
+                active == alarm.active &&
+                Objects.equals(medicineName, alarm.medicineName) &&
+                Objects.equals(medicineDescription, alarm.medicineDescription) &&
+                Objects.equals(alarmInterval, alarm.alarmInterval) &&
+                Objects.equals(alarmNote, alarm.alarmNote);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, medicineName, medicineDescription, alarmInterval, alarmNote,
+                startTime, nextAlarmTime, active);
     }
 }

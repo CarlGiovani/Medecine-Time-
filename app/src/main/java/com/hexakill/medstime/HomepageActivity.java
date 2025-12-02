@@ -2,6 +2,7 @@ package com.hexakill.medstime;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,30 +10,32 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.hexakill.medstime.database.MyDbHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomepageActivity extends AppCompatActivity {
 
-    private List<AlarmSet> alarmList;
     private RecyclerView recyclerView;
     private AlarmCardAdapter adapter;
+    private MyDbHelper dbHelper;
+
+    private List<AlarmSet> allAlarms = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
 
-        // Header setup
         HeaderManager.setupHeader(this);
 
-        // RecyclerView setup
+        dbHelper = new MyDbHelper(this);
+
         recyclerView = findViewById(R.id.remindersRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Load alarms initially
-        loadAlarmsFromDatabase();
+        adapter = new AlarmCardAdapter(new ArrayList<>(), this::onAlarmClicked, dbHelper);
+        recyclerView.setAdapter(adapter);
 
-        // FAB to open MedicineListActivity
         FloatingActionButton addFab = findViewById(R.id.addReminderFab);
         addFab.setOnClickListener(v -> {
             Intent intent = new Intent(HomepageActivity.this, MedicineListActivity.class);
@@ -41,42 +44,54 @@ public class HomepageActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        // Refresh alarms when returning from Add Alarm
-        loadAlarmsFromDatabase();
+    protected void onResume() {
+        super.onResume();
+        loadAlarms();
     }
 
-    private void loadAlarmsFromDatabase() {
-        MyDbHelper dbHelper = new MyDbHelper(this);
-        alarmList = dbHelper.getAllUserReminders(); // fetch latest alarms
+    // ============================================================
+    // LOAD ALL REMINDERS (USER + PREBUILT)
+    // ============================================================
+    private void loadAlarms() {
+        List<AlarmSet> userAlarms = dbHelper.getAllUserReminders();
+        for (AlarmSet alarm : userAlarms) {
+            alarm.computeNextAlarmTime();
+            alarm.setUserCreated(true);
+        }
 
-        if (adapter == null) {
-            // First time setup
-            adapter = new AlarmCardAdapter(alarmList, alarmSet -> {
-                Intent intent = new Intent(HomepageActivity.this, AlarmEditActivity.class);
-                intent.putExtra("alarm_id", alarmSet.getId());
-                intent.putExtra("medicine_name", alarmSet.getMedicineName());
-                intent.putExtra("alarm_interval", Integer.parseInt(alarmSet.getAlarmInterval()));
-                intent.putExtra("alarm_note", alarmSet.getAlarmNote());
-                startActivityForResult(intent, 100);
-            });
+        List<AlarmSet> prebuiltAlarms = dbHelper.getAllPremadeReminders();
+        for (AlarmSet alarm : prebuiltAlarms) {
+            alarm.computeNextAlarmTime();
+            alarm.setUserCreated(false);
+        }
+
+        allAlarms.clear();
+        allAlarms.addAll(userAlarms);
+        allAlarms.addAll(prebuiltAlarms);
+
+        adapter.updateData(allAlarms);
+    }
 
 
+    // ============================================================
+    // OPEN EDIT SCREEN
+    // ============================================================
+    private void onAlarmClicked(AlarmSet alarmSet) {
 
-            recyclerView.setAdapter(adapter);
+        Intent intent;
+
+        if (alarmSet.isUserCreated()) {
+            intent = new Intent(this, AlarmEditUserActivity.class);
         } else {
-            // Update existing adapter with new data
-            adapter.updateData(alarmList);
-            adapter.notifyDataSetChanged();
+            intent = new Intent(this, AlarmEditPresetActivity.class);
         }
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK) {
-            loadAlarmsFromDatabase(); // reload alarms and update RecyclerView
-        }
-    }
 
+        intent.putExtra("alarm_id", alarmSet.getId());
+        intent.putExtra("medicine_name", alarmSet.getMedicineName());
+        intent.putExtra("alarm_interval", Integer.parseInt(alarmSet.getAlarmInterval()));
+        intent.putExtra("alarm_note", alarmSet.getAlarmNote());
+        intent.putExtra("alarm_start_time", alarmSet.getStartTime());
+
+        startActivity(intent);
+    }
 }

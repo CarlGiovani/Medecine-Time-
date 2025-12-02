@@ -10,5 +10,11 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+    <style name="LightTimePicker" parent="Theme.MaterialComponents.Light">
+        <item name="colorControlNormal">#000000</item>
+        <item name="android:textColorPrimary">#000000</item>
+    </style>
+
+
 
 </resources>

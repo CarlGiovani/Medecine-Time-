@@ -70,7 +70,8 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:minHeight="48dp"
-            android:thumbTint="@android:color/white" />
+            android:thumbTint="@android:color/white"
+            android:trackTint="@android:color/black"/>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

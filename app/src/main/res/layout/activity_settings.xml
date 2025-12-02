@@ -65,7 +65,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Select Ringtone"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="12dp"
+            app:backgroundTint="@color/blue"/>
 
         <!-- Snooze Interval SeekBar Label -->
         <TextView
@@ -74,14 +75,17 @@
             android:layout_height="wrap_content"
             android:text="Snooze Interval: 1 min"
             android:textSize="16sp"
-            android:layout_marginBottom="4dp"/>
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/black"/>
 
         <!-- Snooze Interval SeekBar -->
         <SeekBar
             android:id="@+id/seekBarSnooze"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="12dp"
+            android:thumbTint="@color/blue"
+            android:progressTint="@android:color/black"/>
 
         <!-- Notification Before Ringing -->
         <LinearLayout
@@ -95,12 +99,15 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Notification before ringing"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
 
             <Switch
                 android:id="@+id/switchNotification"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:thumbTint="@android:color/white"
+                android:trackTint="@android:color/black"/>
         </LinearLayout>
 
         <!-- Permission Toggle -->
@@ -115,12 +122,15 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Allow permission to show alarm on top"
-                android:textSize="16sp"/>
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
 
             <Switch
                 android:id="@+id/switchPermission"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:thumbTint="@android:color/white"
+                android:trackTint="@android:color/black"/>
         </LinearLayout>
 
         <!-- Test Alarm Button -->
@@ -128,7 +138,8 @@
             android:id="@+id/btnTestAlarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Test Alarm"/>
+            android:text="Test Alarm"
+            app:backgroundTint="@color/blue"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
