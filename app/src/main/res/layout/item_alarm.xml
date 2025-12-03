@@ -48,6 +48,15 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
+                <TextView
+                    android:id="@+id/tvCountdownTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" ( Alarms in 2 hours 30 minutes )"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
             </LinearLayout>
 
             <!-- Note -->

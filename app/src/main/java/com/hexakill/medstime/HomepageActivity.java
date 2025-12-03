@@ -1,6 +1,7 @@
 package com.hexakill.medstime;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,6 +48,7 @@ public class HomepageActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadAlarms();
+        scheduleAllAlarms();
     }
 
     // ============================================================
@@ -72,6 +74,19 @@ public class HomepageActivity extends AppCompatActivity {
         adapter.updateData(allAlarms);
     }
 
+    // ============================================================
+    // SCHEDULE ALL ALARMS
+    // ============================================================
+    private void scheduleAllAlarms() {
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String ringtoneUri = prefs.getString("alarm_ringtone", null);
+
+        for (AlarmSet alarm : allAlarms) {
+            if (alarm.isActive()) {
+                AlarmScheduler.scheduleAlarm(this, alarm, ringtoneUri);
+            }
+        }
+    }
 
     // ============================================================
     // OPEN EDIT SCREEN

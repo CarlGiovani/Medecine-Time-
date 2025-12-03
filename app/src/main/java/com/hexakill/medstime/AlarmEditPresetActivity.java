@@ -133,7 +133,7 @@ public class AlarmEditPresetActivity extends AppCompatActivity {
                     updatedStartTime
             );
 
-            Toast.makeText(this, "Prebuilt reminder updated!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Alarm Updated!", Toast.LENGTH_SHORT).show();
         }
 
         setResult(RESULT_OK);

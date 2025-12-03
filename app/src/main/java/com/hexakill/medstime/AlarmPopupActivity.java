@@ -2,19 +2,19 @@ package com.hexakill.medstime;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.hexakill.medstime.database.MyDbHelper;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class AlarmPopupActivity extends Activity {
 
@@ -22,15 +22,16 @@ public class AlarmPopupActivity extends Activity {
     private LinearLayout medicineListLayout;
     private TextView alarmTimeText;
     private Button dismissButton;
+    private Ringtone ringtone;
 
-    public static final String EXTRA_ALARM_TIME = "alarm_time"; // in millis
+    private static final long ALARM_WINDOW_MS = 60_000; // 1 minute fallback window
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alarm_popup);
 
-        // Fullscreen, keep screen on, show over lock screen
+        // Show on lock screen and fullscreen
         getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN |
                         WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
@@ -45,67 +46,81 @@ public class AlarmPopupActivity extends Activity {
         );
 
         dbHelper = new MyDbHelper(this);
-
         medicineListLayout = findViewById(R.id.alarm_medicine_list);
         alarmTimeText = findViewById(R.id.alarm_time);
         dismissButton = findViewById(R.id.alarm_dismiss_button);
 
         dismissButton.setText("Confirm");
-        dismissButton.setOnClickListener(v -> finish());
+        dismissButton.setOnClickListener(v -> {
+            stopRingtone();
+            finish();
+        });
 
-        long alarmTimeMillis = getIntent().getLongExtra(EXTRA_ALARM_TIME, System.currentTimeMillis());
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(alarmTimeMillis);
-        String formattedTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(cal.getTime());
-        alarmTimeText.setText(formattedTime);
+        // Play ringtone
+        String ringtoneUriStr = getIntent().getStringExtra("ringtoneUri");
+        try {
+            Uri ringtoneUri = ringtoneUriStr != null ? Uri.parse(ringtoneUriStr) :
+                    RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+            ringtone = RingtoneManager.getRingtone(this, ringtoneUri);
+            if (ringtone != null) ringtone.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        loadMedicinesForTime(alarmTimeMillis);
+        // Display current time
+        alarmTimeText.setText(android.text.format.DateFormat.format("hh:mm a", System.currentTimeMillis()));
+
+        // Get all alarm IDs from intent
+        int[] alarmIds = getIntent().getIntArrayExtra("alarm_ids");
+        if (alarmIds != null && alarmIds.length > 0) {
+            showAlarmsByIds(alarmIds);
+        } else {
+            showActiveAlarmsFallback();
+        }
     }
 
-    private void loadMedicinesForTime(long alarmMillis) {
+    private void showAlarmsByIds(int[] alarmIds) {
         medicineListLayout.removeAllViews();
-        List<AlarmSet> alarms = dbHelper.getAllUserReminders();
+        List<AlarmSet> alarms = new ArrayList<>();
+        alarms.addAll(dbHelper.getAllUserReminders());
+        alarms.addAll(dbHelper.getAllPremadeReminders());
 
         boolean hasMedicine = false;
-        Calendar targetCal = Calendar.getInstance();
-        targetCal.setTimeInMillis(alarmMillis);
 
         for (AlarmSet alarm : alarms) {
             if (!alarm.isActive()) continue;
+            for (int id : alarmIds) {
+                if (alarm.getId() == id) {
+                    displayMedicine(alarm);
+                    hasMedicine = true;
+                    break;
+                }
+            }
+        }
 
-            Calendar alarmCal = Calendar.getInstance();
-            alarmCal.setTimeInMillis(alarm.getStartTime());
+        if (!hasMedicine) {
+            TextView emptyView = new TextView(this);
+            emptyView.setText("No medicines scheduled.");
+            emptyView.setTextColor(Color.WHITE);
+            emptyView.setTextSize(18f);
+            medicineListLayout.addView(emptyView);
+        }
+    }
 
-            if (alarmCal.get(Calendar.HOUR_OF_DAY) == targetCal.get(Calendar.HOUR_OF_DAY) &&
-                    alarmCal.get(Calendar.MINUTE) == targetCal.get(Calendar.MINUTE)) {
+    private void showActiveAlarmsFallback() {
+        medicineListLayout.removeAllViews();
+        List<AlarmSet> alarms = new ArrayList<>();
+        alarms.addAll(dbHelper.getAllUserReminders());
+        alarms.addAll(dbHelper.getAllPremadeReminders());
 
+        long now = System.currentTimeMillis();
+        boolean hasMedicine = false;
+
+        for (AlarmSet alarm : alarms) {
+            if (!alarm.isActive()) continue;
+            if (now >= alarm.getStartTime() && now < alarm.getStartTime() + ALARM_WINDOW_MS) {
+                displayMedicine(alarm);
                 hasMedicine = true;
-
-                LinearLayout itemLayout = new LinearLayout(this);
-                itemLayout.setOrientation(LinearLayout.VERTICAL);
-                itemLayout.setPadding(20, 20, 20, 20);
-                itemLayout.setBackgroundColor(Color.parseColor("#33000000"));
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                params.setMargins(0, 0, 0, 15);
-                itemLayout.setLayoutParams(params);
-
-                TextView medName = new TextView(this);
-                medName.setText("Medicine: " + alarm.getMedicineName());
-                medName.setTextColor(Color.WHITE);
-                medName.setTextSize(20f);
-
-                TextView medNote = new TextView(this);
-                medNote.setText("Note: " + alarm.getAlarmNote());
-                medNote.setTextColor(Color.WHITE);
-                medNote.setTextSize(16f);
-
-                itemLayout.addView(medName);
-                itemLayout.addView(medNote);
-
-                medicineListLayout.addView(itemLayout);
             }
         }
 
@@ -116,5 +131,43 @@ public class AlarmPopupActivity extends Activity {
             emptyView.setTextSize(18f);
             medicineListLayout.addView(emptyView);
         }
+    }
+
+    private void displayMedicine(AlarmSet alarm) {
+        LinearLayout itemLayout = new LinearLayout(this);
+        itemLayout.setOrientation(LinearLayout.VERTICAL);
+        itemLayout.setPadding(20, 20, 20, 20);
+        itemLayout.setBackgroundColor(Color.parseColor("#33000000"));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 0, 0, 15);
+        itemLayout.setLayoutParams(params);
+
+        TextView medName = new TextView(this);
+        medName.setText(alarm.getMedicineName());
+        medName.setTextColor(Color.WHITE);
+        medName.setTextSize(20f);
+
+        TextView medNote = new TextView(this);
+        medNote.setText("Note: " + alarm.getAlarmNote());
+        medNote.setTextColor(Color.WHITE);
+        medNote.setTextSize(16f);
+
+        itemLayout.addView(medName);
+        itemLayout.addView(medNote);
+
+        medicineListLayout.addView(itemLayout);
+    }
+
+    private void stopRingtone() {
+        if (ringtone != null && ringtone.isPlaying()) ringtone.stop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopRingtone();
     }
 }

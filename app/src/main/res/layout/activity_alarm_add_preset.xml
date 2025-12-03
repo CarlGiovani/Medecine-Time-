@@ -110,6 +110,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:max="23"
+                    android:backgroundTint="@android:color/black"
                     android:thumbTint="@color/blue"
                     android:progressTint="@android:color/black"/>
             </LinearLayout>
@@ -122,6 +123,7 @@
                 android:hint="Add note"
                 android:textColor="@android:color/black"
                 android:inputType="textMultiLine"
+                android:backgroundTint="@android:color/black"
                 android:minLines="3"
                 android:paddingTop="12dp"/>
         </LinearLayout>

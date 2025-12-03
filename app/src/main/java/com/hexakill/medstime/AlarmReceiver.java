@@ -1,54 +1,104 @@
 package com.hexakill.medstime;
 
+import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
+import com.hexakill.medstime.database.MyDbHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
+    private static final String CHANNEL_ID = "meds_alarm_channel";
+
+    @SuppressLint("MissingPermission")
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Extract medicine info and note
-        String medicineName = intent.getStringExtra("medicine_name");
-        String alarmNote = intent.getStringExtra("alarm_note");
-        long alarmTimeMillis = intent.getLongExtra("alarm_time", System.currentTimeMillis());
 
-        // Optional: show a short Toast for debug
-        Toast.makeText(context, "Time to take: " + medicineName, Toast.LENGTH_SHORT).show();
+        String ringtoneUri = intent.getStringExtra("ringtoneUri");
+        MyDbHelper dbHelper = new MyDbHelper(context);
+        List<Integer> activeAlarmIds = new ArrayList<>();
+        long now = System.currentTimeMillis();
 
-        // Start the AlarmPopupActivity in a new task
-        Intent popupIntent = new Intent(context, AlarmPopupActivity.class);
-        popupIntent.putExtra(AlarmPopupActivity.EXTRA_ALARM_TIME, alarmTimeMillis);
-        popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-        context.startActivity(popupIntent);
-
-        // Optional: reschedule next alarm if interval is provided
-        long intervalMillis = intent.getLongExtra("alarm_interval", 0);
-        if (intervalMillis > 0) {
-            scheduleNextAlarm(context, medicineName, alarmNote, alarmTimeMillis + intervalMillis, intervalMillis);
+        // Collect alarms due now
+        for (AlarmSet alarm : dbHelper.getAllUserReminders()) {
+            if (alarm.isActive() && isAlarmDue(alarm, now)) activeAlarmIds.add(alarm.getId());
         }
-    }
+        for (AlarmSet alarm : dbHelper.getAllPremadeReminders()) {
+            if (alarm.isActive() && isAlarmDue(alarm, now)) activeAlarmIds.add(alarm.getId());
+        }
 
-    private void scheduleNextAlarm(Context context, String medicineName, String alarmNote, long triggerAtMillis, long intervalMillis) {
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.putExtra("medicine_name", medicineName);
-        intent.putExtra("alarm_note", alarmNote);
-        intent.putExtra("alarm_time", triggerAtMillis);
-        intent.putExtra("alarm_interval", intervalMillis);
+        if (activeAlarmIds.isEmpty()) return;
 
-        int requestCode = (int) System.currentTimeMillis(); // unique ID
-        android.app.PendingIntent pendingIntent = android.app.PendingIntent.getBroadcast(
-                context, requestCode, intent,
-                android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE
+        // ---------------- DIRECT POPUP LAUNCH (REQUIRED) ----------------
+        Intent popupIntent = new Intent(context, AlarmPopupActivity.class);
+        popupIntent.putExtra("alarm_ids", activeAlarmIds.stream().mapToInt(i -> i).toArray());
+        popupIntent.putExtra("ringtoneUri", ringtoneUri);
+        popupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(popupIntent);   // <-- YOU REMOVED THIS. IT MUST BE HERE.
+
+
+        // ---------------- FULL SCREEN NOTIFICATION (BACKUP) ----------------
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
+                context,
+                (int) System.currentTimeMillis(),
+                popupIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        android.app.AlarmManager alarmManager = (android.app.AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager != null) {
-            alarmManager.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        // Channel creation
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Medicine Alarm",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Alarms that need full screen popup");
+            channel.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
+
+            NotificationManager nm = context.getSystemService(NotificationManager.class);
+            if (nm != null) nm.createNotificationChannel(channel);
         }
+
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        if (alarmSound == null)
+            alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentTitle("Time to take your medicine")
+                .setContentText("Tap to view your medicines")
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setAutoCancel(true)
+                .setSound(alarmSound)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setFullScreenIntent(fullScreenPendingIntent, true);
+
+        NotificationManagerCompat.from(context)
+                .notify((int) System.currentTimeMillis(), builder.build());
+    }
+
+    private boolean isAlarmDue(AlarmSet alarm, long now) {
+        long start = alarm.getStartTime();
+        int intervalHours = Integer.parseInt(alarm.getAlarmInterval());
+        long intervalMillis = intervalHours * 60L * 60L * 1000L;
+
+        long next = start;
+        while (next < now) next += intervalMillis;
+
+        return now >= (next - intervalMillis) && now < next;
     }
 }

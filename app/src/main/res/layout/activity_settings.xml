@@ -32,7 +32,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="8dp"/>
 
-    <!-- Title next to Back Button -->
+    <!-- Title -->
     <TextView
         android:id="@+id/settingsTitle"
         android:layout_width="0dp"
@@ -59,35 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Select Ringtone Button -->
-        <Button
-            android:id="@+id/btnRingtone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Ringtone"
-            android:layout_marginBottom="12dp"
-            app:backgroundTint="@color/blue"/>
-
-        <!-- Snooze Interval SeekBar Label -->
-        <TextView
-            android:id="@+id/snoozeLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Snooze Interval: 1 min"
-            android:textSize="16sp"
-            android:layout_marginBottom="4dp"
-            android:textColor="@color/black"/>
-
-        <!-- Snooze Interval SeekBar -->
-        <SeekBar
-            android:id="@+id/seekBarSnooze"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:thumbTint="@color/blue"
-            android:progressTint="@android:color/black"/>
-
-        <!-- Notification Before Ringing -->
+        <!-- Ringtone Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -95,22 +67,26 @@
             android:layout_marginBottom="12dp">
 
             <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Notification before ringing"
-                android:textSize="16sp"
-                android:textColor="@color/black"/>
-
-            <Switch
-                android:id="@+id/switchNotification"
+                android:id="@+id/ringtoneLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:thumbTint="@android:color/white"
-                android:trackTint="@android:color/black"/>
+                android:text="Ringtone:"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="16dp"/>
+
+            <Button
+                android:id="@+id/btnRingtone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Select Ringtone"
+                app:backgroundTint="@color/blue"
+                app:cornerRadius="16dp"/>
         </LinearLayout>
 
-        <!-- Permission Toggle -->
+        <!-- Overlay Permission -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -119,9 +95,9 @@
 
             <TextView
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Allow permission to show alarm on top"
+                android:layout_weight="1"
+                android:text="Allow Display over other apps"
                 android:textSize="16sp"
                 android:textColor="@color/black"/>
 
@@ -133,13 +109,60 @@
                 android:trackTint="@android:color/black"/>
         </LinearLayout>
 
-        <!-- Test Alarm Button -->
+        <!-- Full-screen Notification Permission -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Allow Notification and other Permissions"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <Switch
+                android:id="@+id/switchFullScreenPermission"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@android:color/white"
+                android:trackTint="@android:color/black"/>
+        </LinearLayout>
+
+        <!-- Battery Optimization -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Disable Battery optimization"
+                android:textSize="16sp"
+                android:textColor="@color/black"/>
+
+            <Switch
+                android:id="@+id/switchBatteryOptimization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@android:color/white"
+                android:trackTint="@android:color/black"/>
+        </LinearLayout>
+
+        <!-- Test Alarm -->
         <Button
             android:id="@+id/btnTestAlarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Test Alarm"
-            app:backgroundTint="@color/blue"/>
+            app:backgroundTint="@color/blue"
+            app:cornerRadius="16dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

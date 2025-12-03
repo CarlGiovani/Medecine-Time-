@@ -1,3 +1,4 @@
+/*
 package com.hexakill.medstime;
 
 import android.os.Bundle;
@@ -81,3 +82,4 @@ public class ModifyMedicineModal extends AppCompatActivity {
         finish();
     }
 }
+*/

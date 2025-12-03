@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.hexakill.medstime.AlarmScheduler;
 import com.hexakill.medstime.AlarmSet;
 import com.hexakill.medstime.Medicine;
 
@@ -17,27 +18,16 @@ public class MyDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "medstime.db";
     private static final int DATABASE_VERSION = 5;
 
-    // ===========================
-    // USER REMINDERS TABLE
-    // ===========================
     private static final String TABLE_USER = "reminders_user";
-
     private static final String COL_ID = "id";
     private static final String COL_NAME = "medicine_name";
     private static final String COL_DESC = "medicine_description";
-    private static final String COL_INTERVAL = "interval_hours"; // stored as STRING
+    private static final String COL_INTERVAL = "interval_hours";
     private static final String COL_NOTE = "note";
     private static final String COL_START = "start_time";
     private static final String COL_ACTIVE = "active";
 
-    // ===========================
-    // PREBUILT REMINDERS TABLE
-    // ===========================
     private static final String TABLE_PREBUILT = "reminders_prebuilt";
-
-    // ===========================
-    // PREBUILT MEDICINE TABLE
-    // ===========================
     private static final String TABLE_PREBUILT_MED = "prebuilt_medicines";
     private static final String COL_MED_NAME = "name";
     private static final String COL_MED_DESC = "description";
@@ -48,8 +38,6 @@ public class MyDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
-        // USER REMINDERS
         db.execSQL("CREATE TABLE " + TABLE_USER + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT, "
@@ -59,7 +47,6 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 + COL_START + " LONG, "
                 + COL_ACTIVE + " INTEGER DEFAULT 1)");
 
-        // PREBUILT REMINDERS
         db.execSQL("CREATE TABLE " + TABLE_PREBUILT + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_NAME + " TEXT, "
@@ -69,13 +56,11 @@ public class MyDbHelper extends SQLiteOpenHelper {
                 + COL_START + " LONG, "
                 + COL_ACTIVE + " INTEGER DEFAULT 1)");
 
-        // PREBUILT MEDICINE LIST
         db.execSQL("CREATE TABLE " + TABLE_PREBUILT_MED + " ("
                 + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COL_MED_NAME + " TEXT, "
                 + COL_MED_DESC + " TEXT)");
 
-        // Insert default prebuilt medicines
         insertDefaultPrebuiltMedicines(db);
     }
 
@@ -87,9 +72,6 @@ public class MyDbHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // ============================================================
-    // DEFAULT PREBUILT MEDICINE LIST
-    // ============================================================
     private void insertDefaultPrebuiltMedicines(SQLiteDatabase db) {
         insertMedicine(db, "Paracetamol", "Painkiller & fever reducer");
         insertMedicine(db, "Amoxicillin", "Antibiotic");
@@ -105,13 +87,9 @@ public class MyDbHelper extends SQLiteOpenHelper {
         db.insert(TABLE_PREBUILT_MED, null, cv);
     }
 
-    // ============================================================
-    // GET ALL PREBUILT MEDICINES
-    // ============================================================
     public List<Medicine> getAllPrebuiltMedicines() {
         List<Medicine> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-
         Cursor c = db.rawQuery("SELECT * FROM " + TABLE_PREBUILT_MED, null);
 
         while (c.moveToNext()) {
@@ -125,103 +103,83 @@ public class MyDbHelper extends SQLiteOpenHelper {
         return list;
     }
 
-    // ============================================================
-    // ADD PREBUILT REMINDER
-    // ============================================================
-    public void addPrebuiltReminder(String name, String desc, int intervalHours, String note, long startTime) {
+    public long addPrebuiltReminder(String name, String desc, int intervalHours, String note, long startTime) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-
         cv.put(COL_NAME, name);
         cv.put(COL_DESC, desc);
         cv.put(COL_INTERVAL, String.valueOf(intervalHours));
         cv.put(COL_NOTE, note);
         cv.put(COL_START, startTime);
         cv.put(COL_ACTIVE, 1);
-
-        db.insert(TABLE_PREBUILT, null, cv);
+        return db.insert(TABLE_PREBUILT, null, cv);
     }
 
-    // ============================================================
-    // ADD USER REMINDER
-    // ============================================================
-    public void addUserReminder(String name, String desc, String interval, String note, long startTime) {
+    public long addUserReminder(String name, String desc, String interval, String note, long startTime) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-
         cv.put(COL_NAME, name);
         cv.put(COL_DESC, desc);
         cv.put(COL_INTERVAL, interval);
         cv.put(COL_NOTE, note);
         cv.put(COL_START, startTime);
         cv.put(COL_ACTIVE, 1);
-
-        db.insert(TABLE_USER, null, cv);
+        return db.insert(TABLE_USER, null, cv);
     }
 
-    // ============================================================
-    // UPDATE USER REMINDER
-    // ============================================================
     public void updateUserReminder(int id, String name, String desc, String interval, String note, long startTime) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-
         cv.put(COL_NAME, name);
         cv.put(COL_DESC, desc);
         cv.put(COL_INTERVAL, interval);
         cv.put(COL_NOTE, note);
         cv.put(COL_START, startTime);
-
         db.update(TABLE_USER, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
     }
 
-    // ============================================================
-    // UPDATE PREBUILT REMINDER
-    // ============================================================
     public void updatePrebuiltReminder(int id, String name, String desc, String interval, String note, long startTime) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-
         cv.put(COL_NAME, name);
         cv.put(COL_DESC, desc);
         cv.put(COL_INTERVAL, interval);
         cv.put(COL_NOTE, note);
         cv.put(COL_START, startTime);
-
         db.update(TABLE_PREBUILT, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
     }
 
-    // ============================================================
-    // DELETE USER
-    // ============================================================
     public void deleteUserReminder(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_USER, COL_ID + "=?", new String[]{String.valueOf(id)});
     }
 
-    // ============================================================
-    // DELETE PREBUILT
-    // ============================================================
     public void deletePrebuiltReminder(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_PREBUILT, COL_ID + "=?", new String[]{String.valueOf(id)});
     }
 
     // ============================================================
-    // UPDATE ALARM STATUS (Switch toggle)
+    // UPDATE ALARM STATUS (Switch toggle) WITH CANCEL/RESCHEDULE
     // ============================================================
-    public void updateAlarmStatus(int id, boolean active) {
+    public void updateAlarmStatus(Context context, AlarmSet alarm, boolean active) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COL_ACTIVE, active ? 1 : 0);
 
-        db.update(TABLE_USER, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
-        db.update(TABLE_PREBUILT, cv, COL_ID + "=?", new String[]{String.valueOf(id)});
+        db.update(TABLE_USER, cv, COL_ID + "=?", new String[]{String.valueOf(alarm.getId())});
+        db.update(TABLE_PREBUILT, cv, COL_ID + "=?", new String[]{String.valueOf(alarm.getId())});
+
+        // Cancel or reschedule in AlarmManager
+        if (active) {
+            String ringtoneUri = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                    .getString("alarm_ringtone", null);
+            AlarmScheduler.scheduleAlarm(context, alarm, ringtoneUri);
+        } else {
+            AlarmScheduler.cancelAlarm(context, alarm);
+        }
     }
 
-    // ============================================================
-    // GET REMINDERS
-    // ============================================================
     public List<AlarmSet> getAllUserReminders() {
         return fetchAlarms(TABLE_USER, true);
     }
@@ -230,13 +188,9 @@ public class MyDbHelper extends SQLiteOpenHelper {
         return fetchAlarms(TABLE_PREBUILT, false);
     }
 
-    // ============================================================
-    // FETCH ALARMS FROM TABLE
-    // ============================================================
     private List<AlarmSet> fetchAlarms(String tableName, boolean isUser) {
         List<AlarmSet> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-
         Cursor c = db.rawQuery("SELECT * FROM " + tableName, null);
 
         while (c.moveToNext()) {
@@ -249,7 +203,6 @@ public class MyDbHelper extends SQLiteOpenHelper {
             );
             alarm.setUserCreated(isUser);
             alarm.setActive(c.getInt(c.getColumnIndexOrThrow(COL_ACTIVE)) == 1);
-
             list.add(alarm);
         }
         c.close();

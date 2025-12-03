@@ -1,3 +1,4 @@
+/*
 package com.hexakill.medstime;
 
 import java.io.Serializable;
@@ -19,3 +20,4 @@ public class Reminder implements Serializable {
         return type;
     }
 }
+*/

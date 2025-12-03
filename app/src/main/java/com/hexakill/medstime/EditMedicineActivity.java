@@ -1,3 +1,4 @@
+/*
 package com.hexakill.medstime;
 
 import android.graphics.Color;
@@ -209,3 +210,4 @@ public class EditMedicineActivity extends AppCompatActivity {
         }
     }
 }
+*/

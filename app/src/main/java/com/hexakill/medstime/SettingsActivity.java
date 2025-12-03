@@ -1,17 +1,16 @@
 package com.hexakill.medstime;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.widget.Button;
-import android.widget.SeekBar;
 import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,14 +20,12 @@ public class SettingsActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_RINGTONE = 1001;
 
     private Uri selectedRingtoneUri;
+    private String selectedRingtoneName;
+
     private Button btnSelectRingtone, btnTestAlarm;
-    private SeekBar seekBarSnooze;
-    private TextView snoozeValueLabel;
-    private Switch switchNotification, switchPermission;
+    private Switch switchPermission, switchFullScreen, switchBattery;
 
     private SharedPreferences prefs;
-
-    private final int[] snoozeOptions = {1, 2, 3, 5, 10, 15, 30};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,94 +36,140 @@ public class SettingsActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
 
-        // Back button
+        btnSelectRingtone = findViewById(R.id.btnRingtone);
+        btnTestAlarm = findViewById(R.id.btnTestAlarm);
+        switchPermission = findViewById(R.id.switchPermission);
+        switchFullScreen = findViewById(R.id.switchFullScreenPermission);
+        switchBattery = findViewById(R.id.switchBatteryOptimization);
+
         findViewById(R.id.backButton).setOnClickListener(v -> finish());
 
-        // Ringtone button
-        btnSelectRingtone = findViewById(R.id.btnRingtone);
-        btnSelectRingtone.setOnClickListener(v -> openRingtonePicker());
+        loadSavedRingtone();
+        setupOverlayPermissionSwitch();
+        setupFullScreenSwitch();
+        setupBatteryOptimizationSwitch();
+        setupRingtonePicker();
+        setupTestAlarmButton();
+    }
 
-        // Load saved ringtone
+    // ---------------- Load saved ringtone ----------------
+    private void loadSavedRingtone() {
         String savedRingtone = prefs.getString("alarm_ringtone", null);
+        String savedRingtoneName = prefs.getString("alarm_ringtone_name", null);
+
         if (savedRingtone != null) {
             selectedRingtoneUri = Uri.parse(savedRingtone);
-            btnSelectRingtone.setText("Ringtone Selected");
+            selectedRingtoneName = savedRingtoneName != null ? savedRingtoneName : "Selected Ringtone";
+            btnSelectRingtone.setText(selectedRingtoneName);
         }
+    }
 
-        // Snooze seekbar and label
-        seekBarSnooze = findViewById(R.id.seekBarSnooze);
-        snoozeValueLabel = findViewById(R.id.snoozeLabel);
-
-        int savedSnoozeIndex = prefs.getInt("snooze_index", 0);
-        seekBarSnooze.setMax(snoozeOptions.length - 1);
-        seekBarSnooze.setProgress(savedSnoozeIndex);
-        updateSnoozeLabel(savedSnoozeIndex);
-
-        seekBarSnooze.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                updateSnoozeLabel(progress);
-                prefs.edit().putInt("snooze_index", progress).apply();
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        // Notification switch
-        switchNotification = findViewById(R.id.switchNotification);
-        boolean savedNotify = prefs.getBoolean("notify_before_alarm", true);
-        switchNotification.setChecked(savedNotify);
-        switchNotification.setOnCheckedChangeListener((buttonView, isChecked) ->
-                prefs.edit().putBoolean("notify_before_alarm", isChecked).apply()
-        );
-
-        // Overlay permission
-        switchPermission = findViewById(R.id.switchPermission);
-        switchPermission.setChecked(Settings.canDrawOverlays(this));
-        switchPermission.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked && !Settings.canDrawOverlays(this)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-                startActivity(intent);
-            }
-        });
-
-        // Test alarm button
-        btnTestAlarm = findViewById(R.id.btnTestAlarm);
-        btnTestAlarm.setOnClickListener(v -> {
-/*            if (selectedRingtoneUri == null) {
-                Toast.makeText(this, "Please select a ringtone first", Toast.LENGTH_SHORT).show();
-                return;
-            }*/
-            Intent intent = new Intent(this, AlarmPopupActivity.class);
-            intent.putExtra("ringtoneUri", selectedRingtoneUri.toString());
+    // ---------------- Overlay permission (Draw over apps) ----------------
+    private void setupOverlayPermissionSwitch() {
+        switchPermission.setChecked(false); // default unchecked
+        switchPermission.setOnClickListener(v -> {
+            Intent intent = new Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName())
+            );
             startActivity(intent);
         });
     }
 
-    private void updateSnoozeLabel(int index) {
-        int minutes = snoozeOptions[index];
-        snoozeValueLabel.setText("Snooze Interval: " + minutes + " min");
+    // ---------------- Full-screen notification permission ----------------
+    private void setupFullScreenSwitch() {
+        // The switch is just a trigger, so set initial state to false or read your own preference
+        switchFullScreen.setChecked(false);
+
+        switchFullScreen.setOnClickListener(v -> {
+            // Open the app-specific settings page
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        });
     }
 
-    private void openRingtonePicker() {
-        Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Ringtone");
-        startActivityForResult(intent, REQUEST_CODE_RINGTONE);
+
+
+    // ---------------- Battery optimization ----------------
+    private void setupBatteryOptimizationSwitch() {
+        switchBattery.setChecked(false); // default unchecked
+        switchBattery.setOnClickListener(v -> {
+            if (isBatteryOptimized()) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                        .setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+            }
+        });
     }
 
+    private boolean isBatteryOptimized() {
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        return pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName());
+    }
+
+    // ---------------- Ringtone picker ----------------
+    private void setupRingtonePicker() {
+        btnSelectRingtone.setOnClickListener(v -> {
+            Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Ringtone");
+            startActivityForResult(intent, REQUEST_CODE_RINGTONE);
+        });
+    }
+
+    // ---------------- Test alarm ----------------
+    private void setupTestAlarmButton() {
+        btnTestAlarm.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AlarmPopupActivity.class);
+            intent.putExtra("ringtoneUri",
+                    selectedRingtoneUri != null ? selectedRingtoneUri.toString() : null);
+            startActivity(intent);
+        });
+    }
+
+    // ---------------- Handle ringtone result ----------------
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_RINGTONE && resultCode == Activity.RESULT_OK && data != null) {
+
+        if (requestCode == REQUEST_CODE_RINGTONE &&
+                resultCode == Activity.RESULT_OK &&
+                data != null) {
+
             selectedRingtoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+
             if (selectedRingtoneUri != null) {
-                btnSelectRingtone.setText("Ringtone Selected");
-                prefs.edit().putString("alarm_ringtone", selectedRingtoneUri.toString()).apply();
+                String ringtoneName = RingtoneManager.getRingtone(this, selectedRingtoneUri)
+                        .getTitle(this);
+
+                selectedRingtoneName = ringtoneName;
+                btnSelectRingtone.setText(ringtoneName);
+
+                prefs.edit()
+                        .putString("alarm_ringtone", selectedRingtoneUri.toString())
+                        .putString("alarm_ringtone_name", ringtoneName)
+                        .apply();
+
             } else {
+                selectedRingtoneName = null;
                 btnSelectRingtone.setText("Select Ringtone");
-                prefs.edit().remove("alarm_ringtone").apply();
+
+                prefs.edit()
+                        .remove("alarm_ringtone")
+                        .remove("alarm_ringtone_name")
+                        .apply();
             }
         }
     }
+
+    // ---------------- Update switches on resume ----------------
+    @Override
+    protected void onResume() {
+        super.onResume();
+        switchPermission.setChecked(Settings.canDrawOverlays(this));
+        switchFullScreen.setChecked(NotificationUtils.isFullScreenEnabled(this));
+        switchBattery.setChecked(!isBatteryOptimized());
+    }
+
 }

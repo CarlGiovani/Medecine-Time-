@@ -67,6 +67,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Medicine Name"
                 android:textColor="@android:color/black"
+                android:backgroundTint="@android:color/black"
                 android:textSize="18sp"
                 android:inputType="text"
                 android:textStyle="bold"
@@ -86,6 +87,9 @@
                 android:id="@+id/everyXSeekBarRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@android:color/black"
+                android:thumbTint="@color/blue"
+                android:progressTint="@android:color/black"
                 android:orientation="vertical"
                 android:paddingTop="12dp">
 
@@ -113,6 +117,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Add note"
                 android:textColor="@android:color/black"
+                android:backgroundTint="@android:color/black"
                 android:inputType="textMultiLine"
                 android:minLines="3"/>
         </LinearLayout>

@@ -67,6 +67,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Medicine Name"
                 android:textColor="@android:color/black"
+                android:backgroundTint="@android:color/black"
                 android:inputType="text"
                 android:textSize="18sp"
                 android:paddingBottom="4dp"/>
@@ -102,6 +103,7 @@
                     android:layout_height="wrap_content"
                     android:max="23"
                     android:thumbTint="@color/blue"
+                    android:backgroundTint="@android:color/black"
                     android:progressTint="@android:color/black"
                     android:progress="0"/>
             </LinearLayout>
@@ -113,6 +115,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Add note"
                 android:textColor="@android:color/black"
+                android:backgroundTint="@android:color/black"
                 android:inputType="textMultiLine"
                 android:minLines="3"
                 android:paddingTop="12dp"/>

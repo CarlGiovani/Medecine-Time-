@@ -84,6 +84,7 @@
                 android:id="@+id/everyXSeekBarRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@android:color/black"
                 android:orientation="vertical"
                 android:paddingTop="12dp">
 
@@ -101,6 +102,7 @@
                     android:layout_height="wrap_content"
                     android:max="23"
                     android:thumbTint="@color/blue"
+                    android:backgroundTint="@android:color/black"
                     android:progressTint="@android:color/black"/>
             </LinearLayout>
 
@@ -111,6 +113,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Add note"
                 android:textColor="@android:color/black"
+                android:backgroundTint="@android:color/black"
                 android:inputType="textMultiLine"
                 android:minLines="3"/>
         </LinearLayout>

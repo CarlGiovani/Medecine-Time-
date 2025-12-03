@@ -1,6 +1,5 @@
 package com.hexakill.medstime;
 
-import java.util.Calendar;
 import java.util.Objects;
 
 public class AlarmSet {
@@ -14,6 +13,9 @@ public class AlarmSet {
     private long nextAlarmTime;
     private boolean active = true;
     private boolean userCreated = false;
+
+    // Optional: store interval for rescheduling next alarm
+    private long nextInterval = 0L;
 
     // ==========================
     // Constructors
@@ -46,6 +48,7 @@ public class AlarmSet {
     public String getAlarmNote() { return alarmNote; }
     public long getStartTime() { return startTime; }
     public long getNextAlarmTime() { return nextAlarmTime; }
+    public long getNextInterval() { return nextInterval; }
 
     public boolean isActive() { return active; }
     public boolean isUserCreated() { return userCreated; }
@@ -53,13 +56,13 @@ public class AlarmSet {
     public void setActive(boolean active) { this.active = active; }
     public void setUserCreated(boolean userCreated) { this.userCreated = userCreated; }
     public void setMedicineDescription(String description) { this.medicineDescription = description; }
+    public void setNextInterval(long intervalMillis) { this.nextInterval = intervalMillis; }
 
     // ==========================
     // COMPUTE NEXT ALARM TIME
     // ==========================
     public void computeNextAlarmTime() {
         long now = System.currentTimeMillis();
-
         try {
             int intervalHours = Integer.parseInt(alarmInterval);
             long intervalMillis = intervalHours * 60L * 60L * 1000L;
@@ -77,6 +80,19 @@ public class AlarmSet {
             // Fallback to "now + 1 hour"
             nextAlarmTime = now + (60L * 60L * 1000L);
         }
+    }
+
+    // ==========================
+    // COUNTDOWN STRING
+    // ==========================
+    public String getCountdownString() {
+        long millisUntil = nextAlarmTime - System.currentTimeMillis();
+        if (millisUntil <= 0) return "Alarm time passed";
+
+        long hours = millisUntil / (1000 * 60 * 60);
+        long minutes = (millisUntil / (1000 * 60)) % 60;
+
+        return " Alarms in " + hours + " Hours " + minutes + " Mins ";
     }
 
     // ==========================

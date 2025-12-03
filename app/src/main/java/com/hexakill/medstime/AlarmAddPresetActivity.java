@@ -5,10 +5,10 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -25,12 +25,13 @@ import java.util.Calendar;
 public class AlarmAddPresetActivity extends AppCompatActivity {
 
     private TextView tvMedicineName, tvMedicineDescription, intervalLabel;
-    private SeekBar intervalSeekBar;
     private EditText noteInput;
     private TimePicker timePicker;
-
     private MyDbHelper dbHelper;
+    private FloatingActionButton saveFab;
+    private androidx.appcompat.widget.AppCompatSeekBar intervalSeekBar;
 
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +46,11 @@ public class AlarmAddPresetActivity extends AppCompatActivity {
         tvMedicineName = findViewById(R.id.tvMedicineName);
         tvMedicineDescription = findViewById(R.id.tvMedicineDescription);
         intervalLabel = findViewById(R.id.everyXSeekBarLabel);
-        intervalSeekBar = findViewById(R.id.everyXSeekBar);
         noteInput = findViewById(R.id.noteInput);
         timePicker = findViewById(R.id.timePicker);
+        intervalSeekBar = findViewById(R.id.everyXSeekBar);
+        saveFab = findViewById(R.id.saveAlarmFab);
+
         timePicker.setIs24HourView(false);
 
         String name = getIntent().getStringExtra("medicine_name");
@@ -57,14 +60,19 @@ public class AlarmAddPresetActivity extends AppCompatActivity {
         tvMedicineDescription.setText(desc != null ? desc : "");
 
         intervalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 intervalLabel.setText("Interval (hours): " + (progress + 1));
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        findViewById(R.id.saveAlarmFab).setOnClickListener(v -> savePresetAlarm());
+        saveFab.setOnClickListener(v -> savePresetAlarm());
     }
 
     private void savePresetAlarm() {
@@ -88,52 +96,30 @@ public class AlarmAddPresetActivity extends AppCompatActivity {
         cal.set(Calendar.SECOND, 0);
         long startTimeMillis = cal.getTimeInMillis();
 
-        // PREBUILT REMINDERS ALSO GO INTO USER REMINDERS TABLE
-        dbHelper.addUserReminder(
+        // Add to PREBUILT reminders table and get the inserted row ID
+        long newId = dbHelper.addPrebuiltReminder(
                 name,
                 desc,
-                String.valueOf(intervalHours),
+                intervalHours,
                 note,
                 startTimeMillis
         );
 
-        // For AlarmScheduler
-        AlarmSet alarm = new AlarmSet(0, name, String.valueOf(intervalHours), note, startTimeMillis);
+        // Create AlarmSet for scheduling
+        AlarmSet alarm = new AlarmSet((int)newId, name, String.valueOf(intervalHours), note, startTimeMillis);
         alarm.computeNextAlarmTime();
+        alarm.setUserCreated(false);
 
-        scheduleAlarm(alarm);
+        // Get ringtone from SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String ringtoneUri = prefs.getString("alarm_ringtone", null);
+
+        // Schedule the alarm with ringtone
+        AlarmScheduler.scheduleAlarm(this, alarm, ringtoneUri);
 
         Toast.makeText(this, "Alarm Added!", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(AlarmAddPresetActivity.this, HomepageActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    @SuppressLint("ScheduleExactAlarm")
-    private void scheduleAlarm(AlarmSet alarm) {
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra("medicine_name", alarm.getMedicineName());
-        intent.putExtra("alarm_note", alarm.getAlarmNote());
-        intent.putExtra("alarm_time", alarm.getNextAlarmTime());
-
-        long intervalMillis = Long.parseLong(alarm.getAlarmInterval()) * 3600_000L;
-        intent.putExtra("alarm_interval", intervalMillis);
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this,
-                (int) System.currentTimeMillis(),
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        if (am != null) {
-            am.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    alarm.getNextAlarmTime(),
-                    pendingIntent
-            );
-        }
     }
 }
